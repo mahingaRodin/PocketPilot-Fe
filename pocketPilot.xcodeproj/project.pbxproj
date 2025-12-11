@@ -45,6 +45,11 @@
 			path = pocketPilotUITests;
 			sourceTree = "<group>";
 		};
+		B46D28782EEAAB2700D4A8CB /* Podfile */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Podfile;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +80,7 @@
 		B41832832EE98E0700532A64 = {
 			isa = PBXGroup;
 			children = (
+				B46D28782EEAAB2700D4A8CB /* Podfile */,
 				B418328E2EE98E0700532A64 /* pocketPilot */,
 				B418329C2EE98E0800532A64 /* pocketPilotTests */,
 				B41832A62EE98E0800532A64 /* pocketPilotUITests */,
@@ -109,6 +115,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				B418328E2EE98E0700532A64 /* pocketPilot */,
+				B46D28782EEAAB2700D4A8CB /* Podfile */,
 			);
 			name = pocketPilot;
 			packageProductDependencies = (
