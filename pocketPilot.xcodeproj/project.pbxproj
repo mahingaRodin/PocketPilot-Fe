@@ -29,9 +29,35 @@
 		B41832A32EE98E0800532A64 /* pocketPilotUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = pocketPilotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B46D28CC2EEAAF4B00D4A8CB /* Exceptions for "pocketPilot" folder in "pocketPilot" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Features/Authentication/Views/SignUpView.swift,
+				Features/Components/Buttons/SecondaryButton.swift,
+			);
+			target = B418328B2EE98E0700532A64 /* pocketPilot */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		B46D28CD2EEAAF4B00D4A8CB /* Exceptions for "pocketPilot" folder in "Copy Bundle Resources" phase from "pocketPilot" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = B418328A2EE98E0700532A64 /* Resources */;
+			membershipExceptions = (
+				Features/Authentication/Views/SignUpView.swift,
+				Features/Components/Buttons/SecondaryButton.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B418328E2EE98E0700532A64 /* pocketPilot */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B46D28CC2EEAAF4B00D4A8CB /* Exceptions for "pocketPilot" folder in "pocketPilot" target */,
+				B46D28CD2EEAAF4B00D4A8CB /* Exceptions for "pocketPilot" folder in "Copy Bundle Resources" phase from "pocketPilot" target */,
+			);
 			path = pocketPilot;
 			sourceTree = "<group>";
 		};
