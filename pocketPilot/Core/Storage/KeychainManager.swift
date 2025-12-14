@@ -19,21 +19,21 @@ class KeychainManager {
     // MARK: - Token Management
     
     func saveTokens(accessToken: String, refreshToken: String) throws {
-        try keychain.set(accessToken, key: Constants.Keychain.accessToken)
-        try keychain.set(refreshToken, key: Constants.Keychain.refreshToken)
+        try keychain.set(accessToken, key: "access_token")
+        try keychain.set(refreshToken, key: "refresh_token")
     }
     
     func getAccessToken() -> String? {
-        try? keychain.get(Constants.Keychain.accessToken)
+        try? keychain.get("access_token")
     }
     
     func getRefreshToken() -> String? {
-        try? keychain.get(Constants.Keychain.refreshToken)
+        try? keychain.get("refresh_token")
     }
     
     func clearTokens() {
-        try? keychain.remove(Constants.Keychain.accessToken)
-        try? keychain.remove(Constants.Keychain.refreshToken)
+        try? keychain.remove("access_token")
+        try? keychain.remove("refresh_token")
     }
     
     // MARK: - User Data
