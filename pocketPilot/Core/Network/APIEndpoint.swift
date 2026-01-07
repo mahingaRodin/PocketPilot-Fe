@@ -19,6 +19,14 @@ enum APIEndpoint {
     case forgotPassword
     case resetPassword
     
+    // Expense endpoints
+    case getExpenses
+    case getExpense(String)
+    case createExpense
+    case updateExpense(String)
+    case deleteExpense(String)
+    case getDashboard
+    
     var path: String {
         switch self {
         case .login:
@@ -39,6 +47,18 @@ enum APIEndpoint {
             return "/auth/forgot-password"
         case .resetPassword:
             return "/auth/reset-password"
+        case .getExpenses:
+            return "/expenses"
+        case .getExpense(let id):
+            return "/expenses/\(id)"
+        case .createExpense:
+            return "/expenses"
+        case .updateExpense(let id):
+            return "/expenses/\(id)"
+        case .deleteExpense(let id):
+            return "/expenses/\(id)"
+        case .getDashboard:
+            return "/dashboard"
         }
     }
     
@@ -62,6 +82,19 @@ enum APIEndpoint {
             return false
         default:
             return true
+        }
+    }
+    
+    var method: HTTPMethod {
+        switch self {
+        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense:
+            return .post
+        case .updateProfile, .updateExpense:
+            return .put
+        case .deleteExpense:
+            return .delete
+        default:
+            return .get
         }
     }
 }
