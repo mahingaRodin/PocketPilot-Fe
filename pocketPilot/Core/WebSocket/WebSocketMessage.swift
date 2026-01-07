@@ -6,8 +6,8 @@
 //
 
 struct WebSocketMessage: Codable {
-    let type: MessageType, 
-    let payload: MessagePayload,
+    let type: MessageType
+    let payload: MessagePayload
     let timestamp: Date
 }
 
@@ -22,18 +22,15 @@ enum MessageType: String, Codable {
 
 enum MessagePayload: Codable {
     case expense(Expense)
-    case team(Team)
-    case member(TeamMember)
+    case data([String: String])
     
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         
         if let expense = try? container.decode(Expense.self) {
             self = .expense(expense)
-        } else if let team = try? container.decode(Team.self) {
-            self = .team(team)
-        } else if let member = try? container.decode(TeamMember.self) {
-            self = .member(member)
+        } else if let data = try? container.decode([String: String].self) {
+            self = .data(data)
         } else {
             throw DecodingError.dataCorruptedError(
                 in: container,
@@ -48,10 +45,8 @@ enum MessagePayload: Codable {
         switch self {
         case .expense(let expense):
             try container.encode(expense)
-        case .team(let team):
-            try container.encode(team)
-        case .member(let member):
-            try container.encode(member)
+        case .data(let data):
+            try container.encode(data)
         }
     }
 }

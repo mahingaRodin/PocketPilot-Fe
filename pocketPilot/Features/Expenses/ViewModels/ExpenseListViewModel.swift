@@ -5,3 +5,98 @@
 //  Created by headie-one on 12/11/25.
 //
 
+import Foundation
+import Observation
+
+@Observable
+class ExpenseListViewModel {
+    var expenses: [Expense] = []
+    var filteredExpenses: [Expense] = []
+    var isLoading: Bool = false
+    var errorMessage: String?
+    var selectedCategory: Category?
+    var searchText: String = ""
+    var selectedDateRange: DateRange = .all
+    
+    private let apiClient = APIClient.shared
+    
+    enum DateRange: String, CaseIterable {
+        case all = "All Time"
+        case today = "Today"
+        case week = "This Week"
+        case month = "This Month"
+        case year = "This Year"
+    }
+    
+    func loadExpenses() async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let response: PaginatedResponse<Expense> = try await apiClient.request(.getExpenses)
+            expenses = response.data
+            applyFilters()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
+    }
+    
+    func deleteExpense(_ expense: Expense) async {
+        do {
+            let _: EmptyResponse = try await apiClient.request(
+                .deleteExpense(expense.id),
+                method: .delete
+            )
+            await loadExpenses()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    func applyFilters() {
+        filteredExpenses = expenses
+        
+        // Filter by category
+        if let selectedCategory = selectedCategory {
+            filteredExpenses = filteredExpenses.filter { $0.category.id == selectedCategory.id }
+        }
+        
+        // Filter by search text
+        if !searchText.isEmpty {
+            filteredExpenses = filteredExpenses.filter {
+                $0.description.localizedCaseInsensitiveContains(searchText) ||
+                $0.category.name.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+        
+        // Filter by date range
+        let calendar = Calendar.current
+        let now = Date()
+        
+        switch selectedDateRange {
+        case .today:
+            filteredExpenses = filteredExpenses.filter {
+                calendar.isDateInToday($0.date)
+            }
+        case .week:
+            filteredExpenses = filteredExpenses.filter {
+                calendar.isDate($0.date, equalTo: now, toGranularity: .weekOfYear)
+            }
+        case .month:
+            filteredExpenses = filteredExpenses.filter {
+                calendar.isDate($0.date, equalTo: now, toGranularity: .month)
+            }
+        case .year:
+            filteredExpenses = filteredExpenses.filter {
+                calendar.isDate($0.date, equalTo: now, toGranularity: .year)
+            }
+        case .all:
+            break
+        }
+        
+        // Sort by date (newest first)
+        filteredExpenses.sort { $0.date > $1.date }
+    }
+}
