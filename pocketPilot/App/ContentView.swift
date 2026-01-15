@@ -8,15 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var authManager = AuthManager.shared
+    
+    @Environment(AuthManager.self) var authManager  // ← new @Environment syntax for @Observable types
     
     var body: some View {
-        Group {
-            if authManager.isAuthenticated {
-                MainTabView()
-            } else {
-                LoginView()
-            }
+        if authManager.isAuthenticated {
+            MainTabView()
+        } else {
+            LoginView()
         }
     }
 }
@@ -47,6 +46,9 @@ struct MainTabView: View {
     }
 }
 
+// MARK: - Previews
+
 #Preview {
     ContentView()
+        .environment(AuthManager.shared)  // ← .environment here too
 }

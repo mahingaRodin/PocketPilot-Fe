@@ -62,7 +62,10 @@ class WebSocketManager: ObservableObject {
                 self?.receiveMessage()
                 
             case .failure(let error):
-                print("WebSocket receive error: \(error)")
+                print("DEBUG: WebSocket connection failed or closed: \(error.localizedDescription)")
+                if let nsError = error as NSError?, nsError.domain == NSURLErrorDomain {
+                    print("DEBUG: WebSocket URL: \(self?.url.absoluteString ?? "unknown")")
+                }
                 self?.isConnected = false
             }
         }
@@ -70,7 +73,7 @@ class WebSocketManager: ObservableObject {
     
     private func handleMessage(_ text: String) {
         guard let data = text.data(using: .utf8),
-              let message = try? JSONDecoder().decode(WebSocketMessage.self, from: data) else {
+              let message = try? JSONDecoder.api.decode(WebSocketMessage.self, from: data) else {
             return
         }
         

@@ -7,7 +7,9 @@
 
 import Foundation
 import Observation
+import Alamofire
 
+@MainActor
 @Observable
 class ExpenseListViewModel {
     var expenses: [Expense] = []
@@ -33,9 +35,18 @@ class ExpenseListViewModel {
         errorMessage = nil
         
         do {
-            let response: PaginatedResponse<Expense> = try await apiClient.request(.getExpenses)
-            expenses = response.data
-            applyFilters()
+            let data = try await apiClient.requestData(.getExpenses)
+            let decoder = JSONDecoder.api
+            let response = try decoder.decode(MainActorAPIResponse<MainActorPaginatedResponse<Expense>>.self, from: data)
+            
+            if response.success, let result = response.data {
+                expenses = result.data
+                applyFilters()
+            } else if let error = response.error {
+                errorMessage = error.message
+            } else {
+                errorMessage = "Unknown error occurred"
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -45,11 +56,21 @@ class ExpenseListViewModel {
     
     func deleteExpense(_ expense: Expense) async {
         do {
-            let _: EmptyResponse = try await apiClient.request(
+            let data = try await apiClient.requestData(
                 .deleteExpense(expense.id),
                 method: .delete
             )
-            await loadExpenses()
+            
+            let decoder = JSONDecoder.api
+            let response = try decoder.decode(MainActorAPIResponse<EmptyResponse>.self, from: data)
+            
+            if response.success {
+                await loadExpenses()
+            } else if let error = response.error {
+                errorMessage = error.message
+            } else {
+                errorMessage = "Failed to delete expense"
+            }
         } catch {
             errorMessage = error.localizedDescription
         }

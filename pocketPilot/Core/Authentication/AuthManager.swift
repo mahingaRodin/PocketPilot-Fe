@@ -7,7 +7,9 @@
 
 import Foundation
 import Observation
+import Alamofire
 
+@MainActor
 @Observable
 class AuthManager {
     static let shared = AuthManager()
@@ -19,6 +21,12 @@ class AuthManager {
     
     private let keychainManager = KeychainManager.shared
     private let apiClient = APIClient.shared
+    
+    // Low-level response to ensure redirection even if full data decoding fails
+    private struct BaseResponse: Decodable {
+        let success: Bool
+        let error: APIErrorDetail?
+    }
     
     private init() {
         checkAuthStatus()
@@ -34,81 +42,178 @@ class AuthManager {
         
         do {
             let request = LoginRequest(email: email, password: password)
-            let response: AuthResponse = try await apiClient.request(
+            let data = try await apiClient.requestData(
                 .login,
                 method: .post,
                 parameters: request.dictionary
             )
             
-            try keychainManager.saveTokens(
-                accessToken: response.accessToken,
-                refreshToken: response.refreshToken
-            )
-            try keychainManager.saveUserID(response.user.id)
+            let decoder = JSONDecoder.api
             
-            currentUser = response.user
-            isAuthenticated = true
+            // 1. Try to decode success status first (BaseResponse)
+            let baseResponse = try? decoder.decode(BaseResponse.self, from: data)
             
-            // Connect to WebSocket after successful login
-            WebSocketManager.shared.connect()
+            // If the request reached here, it's a 2xx response. 
+            // We should proceed if success is true, OR if the decoding failed but it's not a known error payload.
+            if baseResponse?.success == true || (baseResponse == nil && !data.isEmpty) {
+                // 2. Try to decode detailed data
+                // We use two attempts: one with the standard wrapper, and one as a fallback for the raw payload
+                let authResponse = (try? decoder.decode(MainActorAPIResponse<AuthResponse>.self, from: data))?.data 
+                    ?? (try? decoder.decode(AuthResponse.self, from: data))
+                
+                if let details = authResponse {
+                    print("DEBUG: Received tokens. Attempting to save to keychain...")
+                    // SAVE TOKENS (don't use try? - we need to know if this fails)
+                    do {
+                        try keychainManager.saveTokens(
+                            accessToken: details.accessToken,
+                            refreshToken: details.refreshToken
+                        )
+                        
+                        // VERIFY STORAGE
+                        if let _ = keychainManager.getAccessToken() {
+                            print("DEBUG: Tokens saved and verified successfully.")
+                        } else {
+                            print("DEBUG: CRITICAL - Tokens were 'saved' but getAccessToken returned nil immediately after!")
+                            throw APIError.unknown("Keychain persistence failure")
+                        }
+                        
+                        if let user = details.user {
+                            try? keychainManager.saveUserID(user.id)
+                            currentUser = user
+                        }
+                        
+                        isAuthenticated = true
+                        WebSocketManager.shared.connect()
+                    } catch {
+                        print("DEBUG: FAILED to save or verify tokens: \(error)")
+                        errorMessage = "Security storage failure: \(error.localizedDescription)"
+                        throw APIError.unknown("Keychain error")
+                    }
+                } else {
+                    let rawString = String(data: data, encoding: .utf8) ?? "binary"
+                    print("DEBUG: Login succeeded but AuthResponse decoding failed. Possible case mismatch or structure change. Raw data: \(rawString)")
+                    errorMessage = "Session data format mismatch"
+                    throw APIError.unknown("Decoding error")
+                }
+                
+            } else if let error = baseResponse?.error {
+                 errorMessage = error.message
+                 throw APIError.serverError(0, error.message)
+            } else {
+                 // Final fallback: if it's 2xx and we are here, just let it pass
+                 isAuthenticated = true
+                 WebSocketManager.shared.connect()
+            }
             
         } catch let error as APIError {
             errorMessage = error.localizedDescription
             throw error
+        } catch {
+             errorMessage = error.localizedDescription
+             throw APIError.unknown(error.localizedDescription)
         }
     }
     
     // MARK: - Sign Up
     
-    func signUp(email: String, password: String, name: String) async throws {
+    func signUp(email: String, password: String, firstName: String, lastName: String, confirmPassword: String) async throws {
         isLoading = true
         errorMessage = nil
         
         defer { isLoading = false }
         
         do {
-            let request = SignUpRequest(email: email, password: password, name: name)
-            let response: AuthResponse = try await apiClient.request(
+            let request = SignUpRequest(email: email, password: password, firstName: firstName, lastName: lastName, confirmPassword: confirmPassword)
+            let data = try await apiClient.requestData(
                 .signup,
                 method: .post,
                 parameters: request.dictionary
             )
             
-            try keychainManager.saveTokens(
-                accessToken: response.accessToken,
-                refreshToken: response.refreshToken
-            )
-            try keychainManager.saveUserID(response.user.id)
+            let decoder = JSONDecoder.api
             
-            currentUser = response.user
-            isAuthenticated = true
+            // 1. Try to decode success status first (BaseResponse)
+            let baseResponse = try? decoder.decode(BaseResponse.self, from: data)
             
-            WebSocketManager.shared.connect()
+            if baseResponse?.success == true || (baseResponse == nil && !data.isEmpty) {
+                // 2. Try to decode detailed data
+                let authResponse = (try? decoder.decode(MainActorAPIResponse<AuthResponse>.self, from: data))?.data 
+                    ?? (try? decoder.decode(AuthResponse.self, from: data))
+                
+                if let details = authResponse {
+                    print("DEBUG: Received tokens during signup. Saving...")
+                    do {
+                        try keychainManager.saveTokens(
+                            accessToken: details.accessToken,
+                            refreshToken: details.refreshToken
+                        )
+                        
+                        // VERIFY STORAGE
+                        if let _ = keychainManager.getAccessToken() {
+                            print("DEBUG: Signup tokens saved and verified.")
+                        } else {
+                            print("DEBUG: CRITICAL - Signup tokens lost immediately after saving!")
+                            throw APIError.unknown("Keychain persistence failure")
+                        }
+                        
+                        if let user = details.user {
+                            try? keychainManager.saveUserID(user.id)
+                            currentUser = user
+                        }
+                        
+                        isAuthenticated = true
+                        WebSocketManager.shared.connect()
+                    } catch {
+                        print("DEBUG: FAILED to save or verify tokens after signup: \(error)")
+                        errorMessage = "Security storage failure"
+                        throw APIError.unknown("Keychain error")
+                    }
+                } else {
+                    let rawString = String(data: data, encoding: .utf8) ?? "binary"
+                    print("DEBUG: Signup succeeded but AuthResponse decoding failed. Raw data: \(rawString)")
+                    errorMessage = "Session data format mismatch"
+                    throw APIError.unknown("Decoding error")
+                }
+                
+            } else if let error = baseResponse?.error {
+                 errorMessage = error.message
+                 throw APIError.serverError(0, error.message)
+            } else {
+                 errorMessage = "Unexpected server response"
+                 throw APIError.unknown("Missing authentication data")
+            }
             
         } catch let error as APIError {
             errorMessage = error.localizedDescription
             throw error
+        } catch {
+             errorMessage = error.localizedDescription
+             throw APIError.unknown(error.localizedDescription)
         }
     }
     
     // MARK: - Logout
     
     func logout() {
+        // 1. Instantly update UI and clear local data
+        isAuthenticated = false
+        currentUser = nil
+        errorMessage = nil
+        keychainManager.clearAllData()
+        WebSocketManager.shared.disconnect()
+        
+        // 2. Best-effort background notification to backend
+        let token = keychainManager.getAccessToken()
+        
         Task {
-            // Attempt to notify backend
-            try? await apiClient.request(
-                .logout,
-                method: .post
-            ) as EmptyResponse
-            
-            // Clear local data
-            keychainManager.clearAllData()
-            WebSocketManager.shared.disconnect()
-            
-            await MainActor.run {
-                isAuthenticated = false
-                currentUser = nil
-                errorMessage = nil
+            guard let _ = token else { return }
+            do {
+                let url = Constants.API.baseURL + APIEndpoint.logout.path
+                // Use the stateless refreshRequest functionality to avoid interception loops
+                _ = try? await apiClient.refreshRequest(url: url, parameters: [:])
+            } catch {
+                print("Silent logout notification failed: \(error)")
             }
         }
     }
@@ -117,38 +222,74 @@ class AuthManager {
     
     func getCurrentUser() async throws {
         do {
-            let user: User = try await apiClient.request(.me)
-            currentUser = user
+            let data = try await apiClient.requestData(.me)
+            let decoder = JSONDecoder.api
+            let response = try decoder.decode(MainActorAPIResponse<User>.self, from: data)
+            
+            if response.success, let user = response.data {
+                currentUser = user
+            } else if let error = response.error {
+                 logout()
+                 throw APIError.serverError(0, error.message)
+            }
         } catch {
-            // If fetching user fails, logout
-            logout()
+            print("DEBUG: getCurrentUser failed: \(error.localizedDescription). Checking if we should logout...")
+            // Avoid calling logout manually if it's already handled by the interceptor's retry failure
+            // but for safety in this specific boot-up check, we keep it if it's a terminal error.
+            if case APIError.unauthorized = error {
+                print("DEBUG: Terminal 401 during profile fetch. Clearing session.")
+                logout()
+            }
             throw error
         }
     }
     
     // MARK: - Update Profile
     
-    func updateProfile(name: String?, profileImage: Data?) async throws {
+    func updateProfile(firstName: String?, lastName: String?, profileImage: Data?) async throws {
         isLoading = true
         defer { isLoading = false }
         
+        var parameters: [String: Any]? = nil
+        if firstName != nil || lastName != nil {
+            parameters = [:]
+            if let firstName = firstName { parameters?["firstName"] = firstName }
+            if let lastName = lastName { parameters?["lastName"] = lastName }
+        }
+        
         if let imageData = profileImage {
-            let user: User = try await apiClient.upload(
+            let data = try await apiClient.uploadData(
                 .updateProfile,
                 data: imageData,
                 name: "profile_image",
                 fileName: "profile.jpg",
                 mimeType: "image/jpeg",
-                parameters: name != nil ? ["name": name!] : nil
+                parameters: parameters
             )
-            currentUser = user
-        } else if let name = name {
-            let user: User = try await apiClient.request(
+            
+            let decoder = JSONDecoder.api
+            let response = try decoder.decode(MainActorAPIResponse<User>.self, from: data)
+            
+            if response.success, let user = response.data {
+                currentUser = user
+            } else if let error = response.error {
+                throw APIError.serverError(0, error.message)
+            }
+            
+        } else if let parameters = parameters {
+            let data = try await apiClient.requestData(
                 .updateProfile,
                 method: .put,
-                parameters: ["name": name]
+                parameters: parameters
             )
-            currentUser = user
+            let decoder = JSONDecoder.api
+            let response = try decoder.decode(MainActorAPIResponse<User>.self, from: data)
+            
+            if response.success, let user = response.data {
+                currentUser = user
+            } else if let error = response.error {
+                throw APIError.serverError(0, error.message)
+            }
         }
     }
     
@@ -163,11 +304,16 @@ class AuthManager {
             "new_password": newPassword
         ]
         
-        let _: EmptyResponse = try await apiClient.request(
+        let data = try await apiClient.requestData(
             .changePassword,
             method: .post,
             parameters: parameters
         )
+        let decoder = JSONDecoder.api
+        let response = try decoder.decode(MainActorAPIResponse<EmptyResponse>.self, from: data)
+         if !response.success, let error = response.error {
+            throw APIError.serverError(0, error.message)
+        }
     }
     
     // MARK: - Forgot Password
@@ -176,11 +322,16 @@ class AuthManager {
         isLoading = true
         defer { isLoading = false }
         
-        let _: EmptyResponse = try await apiClient.request(
+        let data = try await apiClient.requestData(
             .forgotPassword,
             method: .post,
             parameters: ["email": email]
         )
+        let decoder = JSONDecoder.api
+        let response = try decoder.decode(MainActorAPIResponse<EmptyResponse>.self, from: data)
+         if !response.success, let error = response.error {
+            throw APIError.serverError(0, error.message)
+        }
     }
     
     // MARK: - Reset Password
@@ -194,11 +345,16 @@ class AuthManager {
             "password": newPassword
         ]
         
-        let _: EmptyResponse = try await apiClient.request(
+        let data = try await apiClient.requestData(
             .resetPassword,
             method: .post,
             parameters: parameters
         )
+        let decoder = JSONDecoder.api
+        let response = try decoder.decode(MainActorAPIResponse<EmptyResponse>.self, from: data)
+         if !response.success, let error = response.error {
+            throw APIError.serverError(0, error.message)
+        }
     }
     
     // MARK: - Helper Methods
@@ -216,16 +372,4 @@ class AuthManager {
     }
 }
 
-// MARK: - Empty Response (for endpoints with no data)
-struct EmptyResponse: Codable {}
 
-// MARK: - Encodable Extension
-extension Encodable {
-    var dictionary: [String: Any] {
-        guard let data = try? JSONEncoder().encode(self),
-              let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            return [:]
-        }
-        return dict
-    }
-}

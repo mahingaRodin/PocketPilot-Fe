@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVFoundation
+import Combine
 
 class CameraManager: ObservableObject {
     @Published var permissionStatus: AVAuthorizationStatus = .notDetermined

@@ -9,7 +9,8 @@ import SwiftUI
 
 struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var name: String = ""
+    @State private var firstName: String = ""
+    @State private var lastName: String = ""
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
     
@@ -19,7 +20,8 @@ struct EditProfileView: View {
         NavigationStack {
             Form {
                 Section("Profile Information") {
-                    TextField("Name", text: $name)
+                    TextField("First Name", text: $firstName)
+                    TextField("Last Name", text: $lastName)
                 }
                 
                 if let error = errorMessage {
@@ -43,11 +45,12 @@ struct EditProfileView: View {
                             await saveProfile()
                         }
                     }
-                    .disabled(isLoading || name.isEmpty)
+                    .disabled(isLoading || firstName.isEmpty || lastName.isEmpty)
                 }
             }
             .onAppear {
-                name = authManager.currentUser?.name ?? ""
+                firstName = authManager.currentUser?.firstName ?? ""
+                lastName = authManager.currentUser?.lastName ?? ""
             }
         }
     }
@@ -57,7 +60,7 @@ struct EditProfileView: View {
         errorMessage = nil
         
         do {
-            try await authManager.updateProfile(name: name, profileImage: nil)
+            try await authManager.updateProfile(firstName: firstName, lastName: lastName, profileImage: nil)
             dismiss()
         } catch {
             errorMessage = error.localizedDescription

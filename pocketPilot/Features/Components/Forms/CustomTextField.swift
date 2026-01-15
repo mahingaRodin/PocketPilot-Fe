@@ -1,48 +1,31 @@
-//
-//  CustomTextField.swift
-//  pocketPilot
-//
-//  Created by headie-one on 12/11/25.
-//
 
 import SwiftUI
 
 struct CustomTextField: View {
-    let title: String
+    let icon: String
+    let placeholder: String
     @Binding var text: String
-    var placeholder: String = ""
-    var isSecure: Bool = false
     var keyboardType: UIKeyboardType = .default
-    var errorMessage: String? = nil
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(.primary)
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundStyle(.gray)
+                .frame(width: 20)
             
-            Group {
-                if isSecure {
-                    SecureField(placeholder, text: $text)
-                } else {
-                    TextField(placeholder, text: $text)
-                        .keyboardType(keyboardType)
-                }
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(10)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(errorMessage != nil ? Color.red : Color.clear, lineWidth: 1)
-            )
-            
-            if let errorMessage = errorMessage {
-                Text(errorMessage)
-                    .font(.caption)
-                    .foregroundColor(.red)
-            }
+            TextField(placeholder, text: $text)
+                .keyboardType(keyboardType)
         }
+        .padding()
+        .background(.white.opacity(0.8))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+#Preview {
+    ZStack {
+        Color.blue
+        CustomTextField(icon: "person.fill", placeholder: "Name", text: .constant(""))
+            .padding()
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Alamofire
 
 struct AddExpenseView: View {
     @Environment(\.dismiss) private var dismiss
@@ -78,6 +79,7 @@ struct AddExpenseView: View {
         }
     }
     
+    @MainActor
     private func saveExpense() async {
         guard let amountValue = Double(amount) else {
             errorMessage = "Invalid amount"
@@ -91,18 +93,28 @@ struct AddExpenseView: View {
             "amount": amountValue,
             "currency": currency,
             "description": description,
-            "category_id": selectedCategory.id,
+            "categoryId": selectedCategory.id,
             "date": ISO8601DateFormatter().string(from: date)
         ]
         
         do {
-            let _: Expense = try await apiClient.request(
+            let data = try await apiClient.requestData(
                 .createExpense,
                 method: .post,
                 parameters: parameters
             )
-            NotificationCenter.default.post(name: NSNotification.Name("ExpenseUpdated"), object: nil)
-            dismiss()
+            
+            let decoder = JSONDecoder.api
+            let response = try decoder.decode(MainActorAPIResponse<Expense>.self, from: data)
+            
+            if response.success {
+                NotificationCenter.default.post(name: NSNotification.Name("ExpenseUpdated"), object: nil)
+                dismiss()
+            } else if let error = response.error {
+                errorMessage = error.message
+            } else {
+                errorMessage = "Unknown error occurred"
+            }
         } catch {
             errorMessage = error.localizedDescription
         }

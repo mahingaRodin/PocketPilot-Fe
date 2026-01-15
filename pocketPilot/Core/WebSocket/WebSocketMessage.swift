@@ -5,6 +5,8 @@
 //  Created by headie-one on 12/11/25.
 //
 
+import Foundation
+
 struct WebSocketMessage: Codable {
     let type: MessageType
     let payload: MessagePayload
@@ -12,12 +14,12 @@ struct WebSocketMessage: Codable {
 }
 
 enum MessageType: String, Codable {
-    case expenseCreated = "expense_created"
-    case expenseUpdated = "expense_updated"
-    case expenseDeleted = "expense_deleted"
-    case teamUpdated = "team_updated"
-    case memberJoined = "member_joined"
-    case memberLeft = "member_left"
+    case expenseCreated = "expenseCreated"
+    case expenseUpdated = "expenseUpdated"
+    case expenseDeleted = "expenseDeleted"
+    case teamUpdated = "teamUpdated"
+    case memberJoined = "memberJoined"
+    case memberLeft = "memberLeft"
 }
 
 enum MessagePayload: Codable {

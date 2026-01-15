@@ -7,23 +7,15 @@
 
 import Foundation
 
-struct Receipt: Codable, Identifiable {
+struct Receipt: Codable, Identifiable, Sendable {
     let id: String
     let expenseID: String
     let imageURL: String
     let thumbnailURL: String?
     let createdAt: Date
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case expenseID = "expense_id"
-        case imageURL = "image_url"
-        case thumbnailURL = "thumbnail_url"
-        case createdAt = "created_at"
-    }
 }
 
-struct Location: Codable {
+struct Location: Codable, Sendable {
     let latitude: Double
     let longitude: Double
     let address: String?

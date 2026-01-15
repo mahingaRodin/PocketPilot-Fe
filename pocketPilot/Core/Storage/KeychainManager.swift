@@ -8,7 +8,7 @@
 import Foundation
 import KeychainAccess
 
-class KeychainManager {
+final class KeychainManager: @unchecked Sendable {
     static let shared = KeychainManager()
     
     private let keychain = Keychain(service: "com.yourcompany.pocketpilot")

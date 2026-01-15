@@ -1,4 +1,4 @@
-﻿//
+//
 //  ProfileView.swift
 //  pocketPilot
 //
@@ -38,7 +38,7 @@ struct ProfileView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                             
-                            Text(user.email)
+                            Text(user.email ?? "")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         } else {

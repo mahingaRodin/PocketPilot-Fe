@@ -57,9 +57,9 @@ struct ForgotPasswordView: View {
                         // Form
                         VStack(spacing: 20) {
                             CustomTextField(
-                                title: "Email",
-                                text: $email,
+                                icon: "envelope",
                                 placeholder: "Enter your email",
+                                text: $email,
                                 keyboardType: .emailAddress
                             )
                             

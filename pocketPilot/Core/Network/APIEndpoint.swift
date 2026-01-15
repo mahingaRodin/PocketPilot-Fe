@@ -8,7 +8,7 @@
 import Foundation
 import Alamofire
 
-enum APIEndpoint {
+enum APIEndpoint: Sendable {
     case login
     case signup
     case logout
@@ -32,7 +32,7 @@ enum APIEndpoint {
         case .login:
             return "/auth/login"
         case .signup:
-            return "/auth/signup"
+            return "/auth/register"
         case .logout:
             return "/auth/logout"
         case .refreshToken:
@@ -65,20 +65,12 @@ enum APIEndpoint {
     var headers: HTTPHeaders? {
         var headers = HTTPHeaders()
         headers.add(.contentType("application/json"))
-        
-        // Add auth token for protected endpoints
-        if requiresAuth {
-            if let token = KeychainManager.shared.getAccessToken() {
-                headers.add(.authorization(bearerToken: token))
-            }
-        }
-        
         return headers
     }
     
     var requiresAuth: Bool {
         switch self {
-        case .login, .signup, .forgotPassword, .resetPassword:
+        case .login, .signup, .forgotPassword, .resetPassword, .refreshToken:
             return false
         default:
             return true

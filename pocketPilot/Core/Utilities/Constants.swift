@@ -10,9 +10,9 @@ import Foundation
 struct Constants {
     struct API {
         // Update this with your actual backend URL
-        static let baseURL = "https://api.pocketpilot.com"
+        static let baseURL = "http://127.0.0.1:8080/api/v1"
         static let timeout: TimeInterval = 30.0
-        static let webSocketURL = "wss://api.pocketpilot.com/ws"
+        static let webSocketURL = "ws://127.0.0.1:8080/ws"
     }
     
     struct App {

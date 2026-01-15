@@ -1,5 +1,13 @@
+import SwiftUI
+
 struct SignUpView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(AuthManager.self) private var authManager
+    
+    @State private var firstName = ""
+    @State private var lastName = ""
+    @State private var email = ""
+    @State private var password = ""
     @State private var confirmPassword = ""
     @State private var showPassword = false
     @State private var showConfirmPassword = false
@@ -21,6 +29,7 @@ struct SignUpView: View {
                     // Header
                     VStack(spacing: 12) {
                         Image(systemName: "person.circle.fill")
+                        
                             .font(.system(size: 60))
                             .foregroundStyle(.white)
                         
@@ -38,8 +47,14 @@ struct SignUpView: View {
                     VStack(spacing: 20) {
                         CustomTextField(
                             icon: "person.fill",
-                            placeholder: "Full Name",
-                            text: $name
+                            placeholder: "First Name",
+                            text: $firstName
+                        )
+                        
+                        CustomTextField(
+                            icon: "person.fill",
+                            placeholder: "Last Name",
+                            text: $lastName
                         )
                         
                         CustomTextField(
@@ -138,7 +153,8 @@ struct SignUpView: View {
     }
     
     private var isValidForm: Bool {
-        !name.isEmpty &&
+        !firstName.isEmpty &&
+        !lastName.isEmpty &&
         !email.isEmpty &&
         email.contains("@") &&
         password.count >= 8 &&
@@ -148,7 +164,13 @@ struct SignUpView: View {
     
     private func handleSignUp() async {
         do {
-            try await authManager.signUp(email: email, password: password, name: name)
+            try await authManager.signUp(
+                email: email,
+                password: password,
+                firstName: firstName,
+                lastName: lastName,
+                confirmPassword: confirmPassword
+            )
         } catch {
             showError = true
         }

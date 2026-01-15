@@ -6,7 +6,7 @@
 //  Created by headie-one on 12/11/25.
 //
 
-struct LoginRequest: Encodable {
+struct LoginRequest: Codable, Sendable {
     let email: String
     let password: String
     

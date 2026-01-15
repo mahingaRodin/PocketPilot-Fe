@@ -5,7 +5,9 @@
 //  Created by headie-one on 12/11/25.
 //
 
-struct Expense: Codable, Identifiable {
+import Foundation
+
+struct Expense: Codable, Identifiable, Sendable {
     let id: String
     let userID: String
     let teamID: String?
@@ -19,20 +21,4 @@ struct Expense: Codable, Identifiable {
     let tags: [String]
     let createdAt: Date
     let updatedAt: Date
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case userID = "user_id"
-        case teamID = "team_id"
-        case amount
-        case currency
-        case category
-        case description
-        case date
-        case receiptURL = "receipt_url"
-        case location
-        case tags
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-    }
 }

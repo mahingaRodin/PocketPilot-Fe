@@ -6,69 +6,45 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXContainerItemProxy section */
-		B418329A2EE98E0800532A64 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B41832842EE98E0700532A64 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B418328B2EE98E0700532A64;
-			remoteInfo = pocketPilot;
+/* Begin PBXBuildFile section */
+		B459017C2F1773730009C442 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B459017B2F1773730009C442 /* Alamofire */; };
+		B4FB76762F0F9E1E0021A529 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = B4FB76752F0F9E1E0021A529 /* KeychainAccess */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B4FB767C2F0F9E220021A529 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B41832A42EE98E0800532A64 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B41832842EE98E0700532A64 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B418328B2EE98E0700532A64;
-			remoteInfo = pocketPilot;
-		};
-/* End PBXContainerItemProxy section */
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		B418328C2EE98E0700532A64 /* pocketPilot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pocketPilot.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B41832992EE98E0800532A64 /* pocketPilotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = pocketPilotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B41832A32EE98E0800532A64 /* pocketPilotUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = pocketPilotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		B46D28CC2EEAAF4B00D4A8CB /* Exceptions for "pocketPilot" folder in "pocketPilot" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Features/Authentication/Views/SignUpView.swift,
-				Features/Components/Buttons/SecondaryButton.swift,
+				Features/SupportingFiles/Info.plist,
 			);
 			target = B418328B2EE98E0700532A64 /* pocketPilot */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		B46D28CD2EEAAF4B00D4A8CB /* Exceptions for "pocketPilot" folder in "Copy Bundle Resources" phase from "pocketPilot" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = B418328A2EE98E0700532A64 /* Resources */;
-			membershipExceptions = (
-				Features/Authentication/Views/SignUpView.swift,
-				Features/Components/Buttons/SecondaryButton.swift,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B418328E2EE98E0700532A64 /* pocketPilot */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				B46D28CC2EEAAF4B00D4A8CB /* Exceptions for "pocketPilot" folder in "pocketPilot" target */,
-				B46D28CD2EEAAF4B00D4A8CB /* Exceptions for "pocketPilot" folder in "Copy Bundle Resources" phase from "pocketPilot" target */,
 			);
 			path = pocketPilot;
-			sourceTree = "<group>";
-		};
-		B418329C2EE98E0800532A64 /* pocketPilotTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = pocketPilotTests;
-			sourceTree = "<group>";
-		};
-		B41832A62EE98E0800532A64 /* pocketPilotUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = pocketPilotUITests;
 			sourceTree = "<group>";
 		};
 		B46D28782EEAAB2700D4A8CB /* Podfile */ = {
@@ -83,20 +59,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B41832962EE98E0800532A64 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B41832A02EE98E0800532A64 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				B4FB76762F0F9E1E0021A529 /* KeychainAccess in Frameworks */,
+				B459017C2F1773730009C442 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,8 +72,7 @@
 			children = (
 				B46D28782EEAAB2700D4A8CB /* Podfile */,
 				B418328E2EE98E0700532A64 /* pocketPilot */,
-				B418329C2EE98E0800532A64 /* pocketPilotTests */,
-				B41832A62EE98E0800532A64 /* pocketPilotUITests */,
+				B4FB76642F0F9DB70021A529 /* Frameworks */,
 				B418328D2EE98E0700532A64 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -118,10 +81,15 @@
 			isa = PBXGroup;
 			children = (
 				B418328C2EE98E0700532A64 /* pocketPilot.app */,
-				B41832992EE98E0800532A64 /* pocketPilotTests.xctest */,
-				B41832A32EE98E0800532A64 /* pocketPilotUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B4FB76642F0F9DB70021A529 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -131,9 +99,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B41832AD2EE98E0800532A64 /* Build configuration list for PBXNativeTarget "pocketPilot" */;
 			buildPhases = (
-				B41832882EE98E0700532A64 /* Sources */,
 				B41832892EE98E0700532A64 /* Frameworks */,
 				B418328A2EE98E0700532A64 /* Resources */,
+				B4FB767C2F0F9E220021A529 /* Embed Frameworks */,
+				B4330CA32F0FA23500D71A92 /* Sources */,
 			);
 			buildRules = (
 			);
@@ -145,56 +114,13 @@
 			);
 			name = pocketPilot;
 			packageProductDependencies = (
+				B4FB76752F0F9E1E0021A529 /* KeychainAccess */,
+				B459017B2F1773730009C442 /* Alamofire */,
+				B459017F2F17745E0009C442 /* AlamofireDynamic */,
 			);
 			productName = pocketPilot;
 			productReference = B418328C2EE98E0700532A64 /* pocketPilot.app */;
 			productType = "com.apple.product-type.application";
-		};
-		B41832982EE98E0800532A64 /* pocketPilotTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B41832B02EE98E0800532A64 /* Build configuration list for PBXNativeTarget "pocketPilotTests" */;
-			buildPhases = (
-				B41832952EE98E0800532A64 /* Sources */,
-				B41832962EE98E0800532A64 /* Frameworks */,
-				B41832972EE98E0800532A64 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				B418329B2EE98E0800532A64 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				B418329C2EE98E0800532A64 /* pocketPilotTests */,
-			);
-			name = pocketPilotTests;
-			packageProductDependencies = (
-			);
-			productName = pocketPilotTests;
-			productReference = B41832992EE98E0800532A64 /* pocketPilotTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		B41832A22EE98E0800532A64 /* pocketPilotUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B41832B32EE98E0800532A64 /* Build configuration list for PBXNativeTarget "pocketPilotUITests" */;
-			buildPhases = (
-				B418329F2EE98E0800532A64 /* Sources */,
-				B41832A02EE98E0800532A64 /* Frameworks */,
-				B41832A12EE98E0800532A64 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				B41832A52EE98E0800532A64 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				B41832A62EE98E0800532A64 /* pocketPilotUITests */,
-			);
-			name = pocketPilotUITests;
-			packageProductDependencies = (
-			);
-			productName = pocketPilotUITests;
-			productReference = B41832A32EE98E0800532A64 /* pocketPilotUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
@@ -209,14 +135,6 @@
 					B418328B2EE98E0700532A64 = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
-					B41832982EE98E0800532A64 = {
-						CreatedOnToolsVersion = 26.1.1;
-						TestTargetID = B418328B2EE98E0700532A64;
-					};
-					B41832A22EE98E0800532A64 = {
-						CreatedOnToolsVersion = 26.1.1;
-						TestTargetID = B418328B2EE98E0700532A64;
-					};
 				};
 			};
 			buildConfigurationList = B41832872EE98E0700532A64 /* Build configuration list for PBXProject "pocketPilot" */;
@@ -228,14 +146,16 @@
 			);
 			mainGroup = B41832832EE98E0700532A64;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B494F7032F0F9A57008DA43C /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				B459017A2F1773730009C442 /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B418328D2EE98E0700532A64 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				B418328B2EE98E0700532A64 /* pocketPilot */,
-				B41832982EE98E0800532A64 /* pocketPilotTests */,
-				B41832A22EE98E0800532A64 /* pocketPilotUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -248,38 +168,10 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B41832972EE98E0800532A64 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B41832A12EE98E0800532A64 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B41832882EE98E0700532A64 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B41832952EE98E0800532A64 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B418329F2EE98E0800532A64 /* Sources */ = {
+		B4330CA32F0FA23500D71A92 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -287,19 +179,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		B418329B2EE98E0800532A64 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B418328B2EE98E0700532A64 /* pocketPilot */;
-			targetProxy = B418329A2EE98E0800532A64 /* PBXContainerItemProxy */;
-		};
-		B41832A52EE98E0800532A64 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B418328B2EE98E0700532A64 /* pocketPilot */;
-			targetProxy = B41832A42EE98E0800532A64 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		B41832AB2EE98E0800532A64 /* Debug */ = {
@@ -354,7 +233,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -411,12 +290,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -430,6 +310,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = pocketpilot;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -461,6 +342,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = pocketpilot;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -480,86 +362,6 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		B41832B12EE98E0800532A64 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ios.pocketPilotTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/pocketPilot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/pocketPilot";
-			};
-			name = Debug;
-		};
-		B41832B22EE98E0800532A64 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ios.pocketPilotTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/pocketPilot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/pocketPilot";
-			};
-			name = Release;
-		};
-		B41832B42EE98E0800532A64 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ios.pocketPilotUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = pocketPilot;
-			};
-			name = Debug;
-		};
-		B41832B52EE98E0800532A64 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ios.pocketPilotUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = pocketPilot;
 			};
 			name = Release;
 		};
@@ -584,25 +386,44 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B41832B02EE98E0800532A64 /* Build configuration list for PBXNativeTarget "pocketPilotTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B41832B12EE98E0800532A64 /* Debug */,
-				B41832B22EE98E0800532A64 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B41832B32EE98E0800532A64 /* Build configuration list for PBXNativeTarget "pocketPilotUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B41832B42EE98E0800532A64 /* Debug */,
-				B41832B52EE98E0800532A64 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B459017A2F1773730009C442 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.11.0;
+			};
+		};
+		B494F7032F0F9A57008DA43C /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B459017B2F1773730009C442 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B459017A2F1773730009C442 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		B459017F2F17745E0009C442 /* AlamofireDynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B459017A2F1773730009C442 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = AlamofireDynamic;
+		};
+		B4FB76752F0F9E1E0021A529 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B494F7032F0F9A57008DA43C /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B41832842EE98E0700532A64 /* Project object */;
 }

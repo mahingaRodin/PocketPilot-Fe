@@ -1,13 +1,17 @@
-struct SignUpRequest: Encodable {
+struct SignUpRequest: Codable, Sendable {
     let email: String
     let password: String
-    let name: String
+    let firstName: String
+    let lastName: String
+    let confirmPassword: String
     
     var dictionary: [String: Any] {
         return [
             "email": email,
             "password": password,
-            "name": name
+            "firstName": firstName,
+            "lastName": lastName,
+            "confirmPassword": confirmPassword
         ]
     }
 }

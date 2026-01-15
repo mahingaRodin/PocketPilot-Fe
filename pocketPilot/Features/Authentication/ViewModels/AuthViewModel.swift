@@ -12,7 +12,8 @@ import Observation
 class AuthViewModel {
     var email: String = ""
     var password: String = ""
-    var name: String = ""
+    var firstName: String = ""
+    var lastName: String = ""
     var confirmPassword: String = ""
     var isLoading: Bool = false
     var errorMessage: String?
@@ -51,7 +52,7 @@ class AuthViewModel {
         showError = false
         
         do {
-            try await authManager.signUp(email: email, password: password, name: name)
+            try await authManager.signUp(email: email, password: password, firstName: firstName, lastName: lastName, confirmPassword: confirmPassword)
         } catch {
             errorMessage = error.localizedDescription
             showError = true
@@ -63,8 +64,14 @@ class AuthViewModel {
     // MARK: - Validation
     
     private func validateSignUp() -> Bool {
-        if name.isEmpty {
-            errorMessage = "Name is required"
+        if firstName.isEmpty {
+            errorMessage = "First name is required"
+            showError = true
+            return false
+        }
+        
+        if lastName.isEmpty {
+            errorMessage = "Last name is required"
             showError = true
             return false
         }

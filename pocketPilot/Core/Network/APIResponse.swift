@@ -1,31 +1,24 @@
-struct APIResponse<T: Codable>: Codable {
+struct APIResponse<T: Codable & Sendable>: Codable, Sendable {
     let success: Bool
     let data: T?
     let message: String?
     let error: APIErrorDetail?
 }
 
-struct APIErrorDetail: Codable {
+struct APIErrorDetail: Codable, Sendable {
     let code: String
     let message: String
     let details: [String: String]?
 }
 
-struct PaginatedResponse<T: Codable>: Codable {
+struct PaginatedResponse<T: Codable & Sendable>: Codable, Sendable {
     let data: [T]
     let pagination: Pagination
 }
 
-struct Pagination: Codable {
+struct Pagination: Codable, Sendable {
     let currentPage: Int
     let totalPages: Int
     let totalItems: Int
     let itemsPerPage: Int
-    
-    enum CodingKeys: String, CodingKey {
-        case currentPage = "current_page"
-        case totalPages = "total_pages"
-        case totalItems = "total_items"
-        case itemsPerPage = "items_per_page"
-    }
 }

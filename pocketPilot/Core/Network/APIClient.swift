@@ -9,10 +9,11 @@
 import Foundation
 import Alamofire
 
-class APIClient {
+final class APIClient: @unchecked Sendable {
     static let shared = APIClient()
     
     private let session: Session
+    private let refreshSession: Session
     private let baseURL = Constants.API.baseURL
     
     private init() {
@@ -25,10 +26,13 @@ class APIClient {
             configuration: configuration,
             interceptor: interceptor
         )
+        
+        // Dedicated session for refresh token to avoid infinite loops
+        refreshSession = Session(configuration: configuration)
     }
     
     // Generic request method
-    func request<T: Decodable>(
+    func request<T: Codable & Sendable>(
         _ endpoint: APIEndpoint,
         method: HTTPMethod = .get,
         parameters: Parameters? = nil,
@@ -45,15 +49,130 @@ class APIClient {
                 headers: endpoint.headers
             )
             .validate()
-            .responseDecodable(of: APIResponse<T>.self) { response in
+            .responseData { response in
                 switch response.result {
-                case .success(let apiResponse):
-                    if apiResponse.success, let data = apiResponse.data {
-                        continuation.resume(returning: data)
-                    } else {
-                        let error = self.mapAPIError(apiResponse.error, statusCode: response.response?.statusCode)
-                        continuation.resume(throwing: error)
+                case .success(let data):
+                    do {
+                        let decoder = JSONDecoder.api
+                        let apiResponse = try decoder.decode(APIResponse<T>.self, from: data)
+                        
+                        if apiResponse.success, let responseData = apiResponse.data {
+                            continuation.resume(returning: responseData)
+                        } else {
+                            let error = self.mapAPIError(apiResponse.error, statusCode: response.response?.statusCode)
+                            continuation.resume(throwing: error)
+                        }
+                    } catch {
+                        print("Decoding error: \(error)") // Debug
+                        // Check if it's an API error response even if type binding failed
+                        if let apiErrorResponse = try? JSONDecoder().decode(APIResponse<T>.self, from: data),
+                           !apiErrorResponse.success {
+                             let apiError = self.mapAPIError(apiErrorResponse.error, statusCode: response.response?.statusCode)
+                             continuation.resume(throwing: apiError)
+                        } else {
+                             continuation.resume(throwing: self.handleAFError(AFError.responseSerializationFailed(reason: .decodingFailed(error: error)), response: response.response))
+                        }
                     }
+                case .failure(let error):
+                    continuation.resume(throwing: self.handleAFError(error, response: response.response))
+                }
+            }
+        }
+    }
+
+    // Request data method (no decoding)
+    func requestData(
+        _ endpoint: APIEndpoint,
+        method: HTTPMethod = .get,
+        parameters: Parameters? = nil,
+        encoding: ParameterEncoding = JSONEncoding.default
+    ) async throws -> Data {
+        let url = baseURL + endpoint.path
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            session.request(
+                url,
+                method: method,
+                parameters: parameters,
+                encoding: encoding,
+                headers: endpoint.headers
+            )
+            .validate()
+            .responseData { response in
+                switch response.result {
+                case .success(let data):
+                    continuation.resume(returning: data)
+                    
+                case .failure(let error):
+                    continuation.resume(throwing: self.handleAFError(error, response: response.response))
+                }
+            }
+        }
+    }
+    
+    // Dedicated refresh request using the non-intercepted session
+    func refreshRequest(
+        url: String,
+        parameters: Parameters
+    ) async throws -> Data {
+        return try await withCheckedThrowingContinuation { continuation in
+            refreshSession.request(
+                url,
+                method: .post,
+                parameters: parameters,
+                encoding: JSONEncoding.default,
+                headers: HTTPHeaders([.contentType("application/json")])
+            )
+            .validate()
+            .responseData { response in
+                switch response.result {
+                case .success(let data):
+                    continuation.resume(returning: data)
+                case .failure(let error):
+                    continuation.resume(throwing: self.handleAFError(error, response: response.response))
+                }
+            }
+        }
+    }
+
+    // Upload method for images/files (no decoding)
+    func uploadData(
+        _ endpoint: APIEndpoint,
+        data: Data,
+        name: String,
+        fileName: String,
+        mimeType: String,
+        parameters: Parameters? = nil
+    ) async throws -> Data {
+        let url = baseURL + endpoint.path
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            session.upload(
+                multipartFormData: { multipartFormData in
+                    multipartFormData.append(
+                        data,
+                        withName: name,
+                        fileName: fileName,
+                        mimeType: mimeType
+                    )
+                    
+                    if let parameters = parameters {
+                        for (key, value) in parameters {
+                            if let data = "\(value)".data(using: .utf8) {
+                                multipartFormData.append(data, withName: key)
+                            }
+                        }
+                    }
+                },
+                to: url,
+                headers: endpoint.headers
+            )
+            .validate()
+            .responseData { response in
+                switch response.result {
+                case .success(let data):
+                    continuation.resume(returning: data)
+                    
                 case .failure(let error):
                     continuation.resume(throwing: self.handleAFError(error, response: response.response))
                 }
@@ -62,7 +181,7 @@ class APIClient {
     }
     
     // Upload method for images/files
-    func upload<T: Decodable>(
+    func upload<T: Codable & Sendable>(
         _ endpoint: APIEndpoint,
         data: Data,
         name: String,
@@ -94,14 +213,28 @@ class APIClient {
                 headers: endpoint.headers
             )
             .validate()
-            .responseDecodable(of: APIResponse<T>.self) { response in
+            .responseData { response in
                 switch response.result {
-                case .success(let apiResponse):
-                    if apiResponse.success, let data = apiResponse.data {
-                        continuation.resume(returning: data)
-                    } else {
-                        let error = self.mapAPIError(apiResponse.error, statusCode: response.response?.statusCode)
-                        continuation.resume(throwing: error)
+                case .success(let data):
+                    do {
+                        let decoder = JSONDecoder.api
+                        let apiResponse = try decoder.decode(APIResponse<T>.self, from: data)
+                        
+                        if apiResponse.success, let responseData = apiResponse.data {
+                            continuation.resume(returning: responseData)
+                        } else {
+                            let error = self.mapAPIError(apiResponse.error, statusCode: response.response?.statusCode)
+                            continuation.resume(throwing: error)
+                        }
+                    } catch {
+                         // Fallback for error mapping
+                         if let apiErrorResponse = try? JSONDecoder().decode(APIResponse<T>.self, from: data),
+                           !apiErrorResponse.success {
+                             let apiError = self.mapAPIError(apiErrorResponse.error, statusCode: response.response?.statusCode)
+                             continuation.resume(throwing: apiError)
+                        } else {
+                            continuation.resume(throwing: self.handleAFError(AFError.responseSerializationFailed(reason: .decodingFailed(error: error)), response: response.response))
+                        }
                     }
                 case .failure(let error):
                     continuation.resume(throwing: self.handleAFError(error, response: response.response))
