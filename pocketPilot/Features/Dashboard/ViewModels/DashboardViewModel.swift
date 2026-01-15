@@ -25,18 +25,44 @@ class DashboardViewModel {
       let data = try await apiClient.requestData(.getDashboard)
       
       let decoder = JSONDecoder.api
-      let response = try decoder.decode(MainActorAPIResponse<DashboardData>.self, from: data)
       
-      if response.success, let result = response.data {
-          self.dashboardData = result
-      } else if let error = response.error {
-          self.errorMessage = error.message
-      } else {
-          self.errorMessage = "Unknown error occurred"
+      var decodedData: DashboardData?
+      
+      // Try 1: Actual Backend Response (Flat)
+      if let backendResponse = try? decoder.decode(BackendDashboardResponse.self, from: data) {
+          print("DEBUG: [Dashboard] Decoded using BackendDashboardResponse strategy")
+          decodedData = backendResponse.toDashboardData()
       }
+      // Try 2: Wrapped in MainActorAPIResponse
+      else if let apiResponse = try? decoder.decode(MainActorAPIResponse<DashboardData>.self, from: data) {
+          print("DEBUG: [Dashboard] Decoded using wrapped strategy")
+          decodedData = apiResponse.data
+      }
+      // Try 3: Direct DashboardData
+      else if let directData = try? decoder.decode(DashboardData.self, from: data) {
+          print("DEBUG: [Dashboard] Decoded using direct DashboardData strategy")
+          decodedData = directData
+      }
+      
+      if let decodedData = decodedData {
+          self.dashboardData = decodedData
+      } else {
+          print("DEBUG: [Dashboard] All decoding strategies failed")
+          // Get the specific error for Try 1 to help debugging
+          do {
+              _ = try decoder.decode(BackendDashboardResponse.self, from: data)
+          } catch {
+              print("DEBUG: [Dashboard] Primary strategy error: \(error)")
+          }
+          self.dashboardData = .empty
+      }
+      
     } catch {
-      errorMessage = error.localizedDescription
+      print("DEBUG: Dashboard request failed: \(error.localizedDescription)")
+      self.dashboardData = .empty
     }
+    
+    isLoading = false
 
     isLoading = false
   }

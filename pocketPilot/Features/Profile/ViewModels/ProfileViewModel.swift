@@ -28,6 +28,21 @@ class ProfileViewModel {
         user = authManager.currentUser
     }
     
+    func updateProfile(firstName: String, lastName: String) async throws {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            try await authManager.updateProfile(firstName: firstName, lastName: lastName, profileImage: nil)
+            user = authManager.currentUser
+        } catch {
+            errorMessage = error.localizedDescription
+            throw error
+        }
+        
+        isLoading = false
+    }
+    
     func logout() {
         authManager.logout()
     }

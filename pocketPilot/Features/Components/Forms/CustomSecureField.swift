@@ -6,29 +6,47 @@ struct CustomSecureField: View {
     let placeholder: String
     @Binding var text: String
     @Binding var showPassword: Bool
+    @FocusState private var isFocused: Bool
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             Image(systemName: icon)
-                .foregroundStyle(.gray)
-                .frame(width: 20)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(isFocused ? .blue : .secondary)
+                .frame(width: 24)
+                .scaleEffect(isFocused ? 1.1 : 1.0)
+                .animation(.springy, value: isFocused)
             
-            if showPassword {
-                TextField(placeholder, text: $text)
-            } else {
-                SecureField(placeholder, text: $text)
+            Group {
+                if showPassword {
+                    TextField(placeholder, text: $text)
+                } else {
+                    SecureField(placeholder, text: $text)
+                }
             }
+            .font(.body)
+            .focused($isFocused)
+            .autocapitalization(.none)
             
             Button {
                 showPassword.toggle()
             } label: {
                 Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")
-                    .foregroundStyle(.gray)
+                    .font(.system(size: 16))
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()
-        .background(.white.opacity(0.8))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(isFocused ? .white : .white.opacity(0.8))
+                .shadow(color: isFocused ? .black.opacity(0.1) : .clear, radius: 10, x: 0, y: 5)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(isFocused ? .blue.opacity(0.3) : .clear, lineWidth: 1)
+        )
+        .animation(.gentle, value: isFocused)
     }
 }
 

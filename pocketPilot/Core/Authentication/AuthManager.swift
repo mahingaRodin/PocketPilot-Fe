@@ -268,12 +268,24 @@ class AuthManager {
             )
             
             let decoder = JSONDecoder.api
-            let response = try decoder.decode(MainActorAPIResponse<User>.self, from: data)
+            var decodedUser: User?
             
-            if response.success, let user = response.data {
+            if let response = try? decoder.decode(MainActorAPIResponse<User>.self, from: data) {
+                if response.success, let user = response.data {
+                    decodedUser = user
+                } else if let error = response.error {
+                    throw APIError.serverError(0, error.message)
+                }
+            } else if let user = try? decoder.decode(User.self, from: data) {
+                decodedUser = user
+            }
+            
+            if let user = decodedUser {
                 currentUser = user
-            } else if let error = response.error {
-                throw APIError.serverError(0, error.message)
+            } else {
+                let rawString = String(data: data, encoding: .utf8) ?? "binary"
+                print("DEBUG: Profile update (multipart) succeeded but User decoding failed. Raw data: \(rawString)")
+                throw APIError.decodingError("Failed to decode user profile after upload.")
             }
             
         } else if let parameters = parameters {
@@ -283,12 +295,24 @@ class AuthManager {
                 parameters: parameters
             )
             let decoder = JSONDecoder.api
-            let response = try decoder.decode(MainActorAPIResponse<User>.self, from: data)
+            var decodedUser: User?
             
-            if response.success, let user = response.data {
+            if let response = try? decoder.decode(MainActorAPIResponse<User>.self, from: data) {
+                if response.success, let user = response.data {
+                    decodedUser = user
+                } else if let error = response.error {
+                    throw APIError.serverError(0, error.message)
+                }
+            } else if let user = try? decoder.decode(User.self, from: data) {
+                decodedUser = user
+            }
+            
+            if let user = decodedUser {
                 currentUser = user
-            } else if let error = response.error {
-                throw APIError.serverError(0, error.message)
+            } else {
+                let rawString = String(data: data, encoding: .utf8) ?? "binary"
+                print("DEBUG: Profile update (put) succeeded but User decoding failed. Raw data: \(rawString)")
+                throw APIError.decodingError("Failed to decode user profile after update.")
             }
         }
     }

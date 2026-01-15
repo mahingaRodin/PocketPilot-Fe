@@ -18,6 +18,8 @@ enum APIEndpoint: Sendable {
     case changePassword
     case forgotPassword
     case resetPassword
+    case getProfile
+    case getCategories
     
     // Expense endpoints
     case getExpenses
@@ -40,7 +42,11 @@ enum APIEndpoint: Sendable {
         case .me:
             return "/auth/me"
         case .updateProfile:
-            return "/auth/profile"
+            return "/user/profile"
+        case .getProfile:
+            return "/user/profile"
+        case .getCategories:
+            return "/expenses/categories"
         case .changePassword:
             return "/auth/change-password"
         case .forgotPassword:

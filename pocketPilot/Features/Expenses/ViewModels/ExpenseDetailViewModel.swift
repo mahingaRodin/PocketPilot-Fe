@@ -30,17 +30,91 @@ class ExpenseDetailViewModel {
         do {
             let data = try await apiClient.requestData(.getExpense(expenseId))
             let decoder = JSONDecoder.api
-            let response = try decoder.decode(MainActorAPIResponse<Expense>.self, from: data)
             
-            if response.success, let result = response.data {
-                self.expense = result
-            } else if let error = response.error {
-                self.errorMessage = error.message
+            // Log for debugging
+            if let json = String(data: data, encoding: .utf8) {
+                print("DEBUG: [Detail] Raw response: \(json)")
+            }
+            
+            var decodedExpense: Expense?
+            
+            // Try 1: Wrapped Response
+            do {
+                let response = try decoder.decode(MainActorAPIResponse<Expense>.self, from: data)
+                if response.success, let result = response.data {
+                    decodedExpense = result
+                }
+            } catch {
+                print("DEBUG: [Detail] Wrapped strategy failed: \(error)")
+            }
+            
+            // Try 2: Flat Expense Object
+            if decodedExpense == nil {
+                do {
+                    let result = try decoder.decode(Expense.self, from: data)
+                    print("DEBUG: [Detail] Decoded using flat Expense strategy")
+                    decodedExpense = result
+                } catch {
+                    print("DEBUG: [Detail] Flat strategy failed: \(error)")
+                }
+            }
+            
+            if let decodedExpense = decodedExpense {
+                self.expense = decodedExpense
             } else {
-                self.errorMessage = "Unknown error occurred"
+                print("DEBUG: [Detail] All decoding strategies failed")
+                self.errorMessage = "Failed to load expense details"
+            }
+        } catch {
+            print("DEBUG: [Detail] Request failed: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
+    }
+    
+    func updateExpense(amount: Double, description: String, category: String, date: Date, notes: String?) async throws {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let formatter = ISO8601DateFormatter()
+            let parameters: [String: Any] = [
+                "amount": amount,
+                "description": description,
+                "category": category,
+                "date": formatter.string(from: date),
+                "notes": notes as Any
+            ]
+            
+            let data = try await apiClient.requestData(
+                .updateExpense(expenseId),
+                method: .put,
+                parameters: parameters
+            )
+            
+            let decoder = JSONDecoder.api
+            var decodedExpense: Expense?
+
+            if let response = try? decoder.decode(MainActorAPIResponse<Expense>.self, from: data) {
+                if response.success, let result = response.data {
+                    decodedExpense = result
+                } else if let error = response.error {
+                    throw APIError.serverError(0, error.message)
+                }
+            } else if let result = try? decoder.decode(Expense.self, from: data) {
+                decodedExpense = result
+            }
+            
+            if let expense = decodedExpense {
+                self.expense = expense
+            } else {
+                // If neither decoding strategy worked, throw a generic error
+                throw APIError.decodingError("Failed to decode expense after update.")
             }
         } catch {
             errorMessage = error.localizedDescription
+            throw error
         }
         
         isLoading = false
@@ -59,15 +133,14 @@ class ExpenseDetailViewModel {
             )
             
             let decoder = JSONDecoder.api
-            let response = try decoder.decode(MainActorAPIResponse<EmptyResponse>.self, from: data)
             
-            if !response.success {
-                if let error = response.error {
-                    self.errorMessage = error.message
-                } else {
-                    self.errorMessage = "Failed to delete expense"
+            // Flexible decoding
+            if let response = try? decoder.decode(MainActorAPIResponse<EmptyResponse>.self, from: data) {
+                if !response.success {
+                    self.errorMessage = response.error?.message ?? "Failed to delete expense"
                 }
             }
+            // If it's a 2xx, assume success for delete if no error wrapper found
         } catch {
             errorMessage = error.localizedDescription
         }

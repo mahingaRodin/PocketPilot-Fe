@@ -1,4 +1,4 @@
-﻿//
+//
 //  ExpenseRow.swift
 //  pocketPilot
 //
@@ -30,7 +30,7 @@ struct ExpenseRow: View {
         description: "Lunch",
         date: Date(),
         receiptURL: nil,
-        location: nil,
+        notes: nil,
         tags: [],
         createdAt: Date(),
         updatedAt: Date()

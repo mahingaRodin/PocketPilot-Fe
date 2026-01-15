@@ -10,118 +10,169 @@ struct LoginView: View {
     @State private var navigateToSignUp = false
     @State private var navigateToForgotPassword = false
     
+    // Animation States
+    @State private var isAnimating = false
+    @State private var appearScale = 0.8
+    @State private var appearOpacity = 0.0
+    
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background gradient
-                LinearGradient(
-                    colors: [.blue.opacity(0.6), .purple.opacity(0.4)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                // MARK: - Animated Immersive Background
+                ZStack {
+                    Color.black.ignoresSafeArea()
+                    
+                    // Dancing Blur 1
+                    Circle()
+                        .fill(LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 400, height: 400)
+                        .blur(radius: 80)
+                        .offset(x: isAnimating ? -100 : 100, y: isAnimating ? -200 : 100)
+                        .opacity(0.6)
+                    
+                    // Dancing Blur 2
+                    Circle()
+                        .fill(LinearGradient(colors: [.purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 300, height: 300)
+                        .blur(radius: 60)
+                        .offset(x: isAnimating ? 150 : -50, y: isAnimating ? 100 : -150)
+                        .opacity(0.5)
+                }
                 .ignoresSafeArea()
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
+                        isAnimating = true
+                    }
+                }
                 
                 ScrollView {
-                    VStack(spacing: 30) {
-                        Spacer()
-                            .frame(height: 60)
+                    VStack(spacing: 32) {
+                        Spacer().frame(height: 40)
                         
-                        // Logo and Title
+                        // MARK: - Logo & Title (Staggered)
                         VStack(spacing: 16) {
-                            Image(systemName: "creditcard.circle.fill")
-                                .font(.system(size: 80))
-                                .foregroundStyle(.white)
-                            
-                            Text("PocketPilot")
-                                .font(.system(size: 36, weight: .bold))
-                                .foregroundStyle(.white)
-                            
-                            Text("Track expenses effortlessly")
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.9))
-                        }
-                        .padding(.bottom, 30)
-                        
-                        // Login Form
-                        VStack(spacing: 20) {
-                            // Email Field
-                            CustomTextField(
-                                icon: "envelope.fill",
-                                placeholder: "Email",
-                                text: $email,
-                                keyboardType: .emailAddress
-                            )
-                            
-                            // Password Field
-                            CustomSecureField(
-                                icon: "lock.fill",
-                                placeholder: "Password",
-                                text: $password,
-                                showPassword: $showPassword
-                            )
-                            
-                            // Forgot Password
-                            HStack {
-                                Spacer()
-                                Button {
-                                    navigateToForgotPassword = true
-                                } label: {
-                                    Text("Forgot Password?")
-                                        .font(.footnote)
-                                        .foregroundStyle(.white)
-                                }
+                            ZStack {
+                                Circle()
+                                    .fill(.white.opacity(0.1))
+                                    .frame(width: 100, height: 100)
+                                    .blur(radius: 5)
+                                
+                                Image(systemName: "creditcard.circle.fill")
+                                    .font(.system(size: 80))
+                                    .foregroundStyle(
+                                        LinearGradient(colors: [.white, .white.opacity(0.7)], startPoint: .top, endPoint: .bottom)
+                                    )
+                                    .shadow(color: .blue.opacity(0.5), radius: 20, x: 0, y: 10)
                             }
+                            .scaleEffect(appearScale)
+                            .opacity(appearOpacity)
+                            .animation(.springy.delay(0.1), value: appearScale)
+                            
+                            VStack(spacing: 8) {
+                                Text("PocketPilot")
+                                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                                    .foregroundStyle(.white)
+                                
+                                Text("Track expenses effortlessly")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.white.opacity(0.7))
+                            }
+                            .offset(y: appearOpacity == 1 ? 0 : 20)
+                            .opacity(appearOpacity)
+                            .animation(.gentle.delay(0.2), value: appearOpacity)
+                        }
+                        
+                        // MARK: - Login Form
+                        VStack(spacing: 24) {
+                            VStack(spacing: 16) {
+                                CustomTextField(
+                                    icon: "envelope.fill",
+                                    placeholder: "Email",
+                                    text: $email,
+                                    keyboardType: .emailAddress
+                                )
+                                
+                                CustomSecureField(
+                                    icon: "lock.fill",
+                                    placeholder: "Password",
+                                    text: $password,
+                                    showPassword: $showPassword
+                                )
+                            }
+                            
+                            Button {
+                                navigateToForgotPassword = true
+                            } label: {
+                                Text("Forgot Password?")
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.white.opacity(0.8))
+                            }
+                            .frame(maxWidth: .infinity, alignment: .trailing)
                             
                             // Login Button
                             Button {
-                                Task {
-                                    await handleLogin()
-                                }
+                                Task { await handleLogin() }
                             } label: {
-                                if authManager.isLoading {
-                                    ProgressView()
-                                        .tint(.white)
-                                } else {
-                                    Text("Login")
-                                        .font(.headline)
-                                        .foregroundStyle(.white)
+                                HStack {
+                                    if authManager.isLoading {
+                                        ProgressView().tint(.white)
+                                    } else {
+                                        Text("Login")
+                                            .font(.headline)
+                                            .fontWeight(.bold)
+                                    }
                                 }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(.white.opacity(0.2))
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(.white.opacity(0.3), lineWidth: 1)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(
+                                    LinearGradient(colors: [Color.blue, Color.blue.opacity(0.8)], startPoint: .leading, endPoint: .trailing)
+                                )
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
                             }
                             .disabled(authManager.isLoading || !isValidForm)
                             .opacity(isValidForm ? 1 : 0.6)
+                            .scaleEffect(!isValidForm ? 0.98 : 1.0)
+                            .animation(.springy, value: isValidForm)
                             
-                            // Sign Up Link
+                            // Sign Up Divert
                             HStack {
                                 Text("Don't have an account?")
-                                    .foregroundStyle(.white.opacity(0.9))
+                                    .foregroundStyle(.white.opacity(0.6))
                                 
                                 Button {
                                     navigateToSignUp = true
                                 } label: {
                                     Text("Sign Up")
-                                        .fontWeight(.semibold)
+                                        .fontWeight(.bold)
                                         .foregroundStyle(.white)
                                 }
                             }
                             .font(.subheadline)
+                            .padding(.top, 8)
                         }
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 32)
+                        .padding(24)
                         .background(.ultraThinMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: 24))
+                        .clipShape(RoundedRectangle(cornerRadius: 32))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 32)
+                                .stroke(.white.opacity(0.1), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.2), radius: 30, x: 0, y: 20)
                         .padding(.horizontal, 20)
+                        .offset(y: appearOpacity == 1 ? 0 : 40)
+                        .opacity(appearOpacity)
+                        .animation(.gentle.delay(0.3), value: appearOpacity)
                         
                         Spacer()
                     }
                 }
+            }
+            .onAppear {
+                appearScale = 1.0
+                appearOpacity = 1.0
             }
             .navigationDestination(isPresented: $navigateToSignUp) {
                 SignUpView()
@@ -148,4 +199,8 @@ struct LoginView: View {
             showError = true
         }
     }
+}
+
+#Preview {
+    LoginView()
 }

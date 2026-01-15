@@ -15,45 +15,62 @@ struct ExpenseCard: View {
             // Category Icon
             ZStack {
                 Circle()
-                    .fill(Color(hex: expense.category.color ?? "#95A5A6") ?? Color.gray)
-                    .frame(width: 50, height: 50)
+                    .fill(Color(hex: expense.category.color ?? "#95A5A6")?.opacity(0.12) ?? .gray.opacity(0.1))
+                    .frame(width: 48, height: 48)
                 
-                if let iconName = expense.category.icon {
-                    Image(systemName: iconName)
-                        .foregroundColor(.white)
-                        .font(.title3)
+                if let icon = expense.category.icon {
+                    if expense.category.isEmoji {
+                        Text(icon)
+                            .font(.system(size: 24))
+                    } else {
+                        Image(systemName: icon)
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(Color(hex: expense.category.color ?? "#95A5A6") ?? .gray)
+                    }
                 }
             }
             
-            // Expense Details
             VStack(alignment: .leading, spacing: 4) {
                 Text(expense.description)
-                    .font(.headline)
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 
-                Text(expense.category.name)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
-                Text(expense.date, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack(spacing: 6) {
+                    Text(expense.category.name)
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color(hex: expense.category.color ?? "#95A5A6")?.opacity(0.1) ?? .gray.opacity(0.1))
+                        .foregroundColor(Color(hex: expense.category.color ?? "#95A5A6") ?? .gray)
+                        .clipShape(Capsule())
+                    
+                    Text("•")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Text(expense.date, style: .date)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
             
             Spacer()
             
-            // Amount
-            VStack(alignment: .trailing, spacing: 4) {
-                Text(formatCurrency(expense.amount, currency: expense.currency))
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
-            }
+            Text(formatCurrency(expense.amount, currency: expense.currency ?? "USD"))
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .foregroundColor(.primary)
         }
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(.secondarySystemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.black.opacity(0.03), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
     }
     
     private func formatCurrency(_ amount: Double, currency: String) -> String {

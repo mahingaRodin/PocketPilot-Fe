@@ -1,4 +1,4 @@
-﻿//
+//
 //  ExpenseDetailView.swift
 //  pocketPilot
 //
@@ -11,6 +11,7 @@ struct ExpenseDetailView: View {
     let expenseId: String
     @State private var viewModel: ExpenseDetailViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var showEditSheet = false
     @State private var showDeleteAlert = false
     
     init(expenseId: String) {
@@ -20,65 +21,117 @@ struct ExpenseDetailView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                if viewModel.isLoading {
-                    LoadingView(message: "Loading expense...")
+            ZStack {
+                Color(.systemGroupedBackground).ignoresSafeArea()
+                
+                ScrollView {
+                    if viewModel.isLoading {
+                        LoadingView(message: "Loading expense...")
+                            .frame(height: 400)
+                    } else if let error = viewModel.errorMessage {
+                        ErrorView(message: error) {
+                            Task {
+                                await viewModel.loadExpense()
+                            }
+                        }
                         .frame(height: 400)
-                } else if let error = viewModel.errorMessage {
-                    ErrorView(message: error) {
-                        Task {
-                            await viewModel.loadExpense()
-                        }
-                    }
-                    .frame(height: 400)
-                } else if let expense = viewModel.expense {
-                    VStack(spacing: 24) {
-                        // Amount
-                        VStack(spacing: 8) {
-                            Text(formatCurrency(expense.amount, currency: expense.currency))
-                                .font(.system(size: 48, weight: .bold))
-                            Text(expense.description)
-                                .font(.title3)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding()
-                        
-                        // Details
-                        VStack(alignment: .leading, spacing: 16) {
-                            DetailRow(title: "Category", value: expense.category.name)
-                            DetailRow(title: "Date", value: expense.date.formatted(style: .medium))
-                            if let location = expense.location {
-                                DetailRow(title: "Location", value: location.address ?? "Unknown")
+                    } else if let expense = viewModel.expense {
+                        VStack(spacing: 24) {
+                            // Highlights Card
+                            VStack(spacing: 16) {
+                                // Category Icon
+                                ZStack {
+                                    Circle()
+                                        .fill(Color(hex: expense.category.color ?? "#3B82F6")?.opacity(0.15) ?? .blue.opacity(0.1))
+                                        .frame(width: 80, height: 80)
+                                    
+                                    if let icon = expense.category.icon {
+                                        if expense.category.isEmoji {
+                                            Text(icon)
+                                                .font(.system(size: 40))
+                                        } else {
+                                            Image(systemName: icon)
+                                                .font(.system(size: 32, weight: .bold))
+                                                .foregroundColor(Color(hex: expense.category.color ?? "#3B82F6") ?? .blue)
+                                        }
+                                    }
+                                }
+                                
+                                VStack(spacing: 4) {
+                                    Text(formatCurrency(expense.amount, currency: expense.currency ?? "USD"))
+                                        .font(.system(size: 44, weight: .bold, design: .rounded))
+                                    
+                                    Text(expense.description)
+                                        .font(.title3)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.secondary)
+                                }
                             }
-                            if !expense.tags.isEmpty {
-                                DetailRow(title: "Tags", value: expense.tags.joined(separator: ", "))
+                            .padding(.vertical, 32)
+                            .frame(maxWidth: .infinity)
+                            .background(Color(.systemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 32))
+                            .padding(.horizontal)
+                            
+                            // Details Section
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Details")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+                                
+                                VStack(spacing: 1) {
+                                    infoRow(icon: "tag.fill", label: "Category", value: expense.category.name)
+                                    infoRow(icon: "calendar", label: "Date", value: expense.date.formatted(date: .long, time: .omitted))
+                                    if let notes = expense.notes, !notes.isEmpty {
+                                        infoRow(icon: "note.text", label: "Notes", value: notes)
+                                    }
+                                }
+                                .background(Color(.systemBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .padding(.horizontal)
                             }
+                            
+                            // Actions
+                            VStack(spacing: 12) {
+                                Button(action: { showEditSheet = true }) {
+                                    Label("Edit Expense", systemImage: "pencil")
+                                        .fontWeight(.semibold)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                }
+                                
+                                Button(action: { showDeleteAlert = true }) {
+                                    Label("Delete Expense", systemImage: "trash")
+                                        .fontWeight(.semibold)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.red.opacity(0.1))
+                                        .foregroundColor(.red)
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.top, 8)
                         }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                        
-                        // Delete Button
-                        Button(action: { showDeleteAlert = true }) {
-                            Text("Delete Expense")
-                                .foregroundColor(.red)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(12)
-                        }
-                        .padding(.horizontal)
+                        .padding(.vertical)
                     }
-                    .padding(.vertical)
                 }
             }
-            .navigationTitle("Expense Details")
+            .navigationTitle("Expense")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
+                    Button("Done") { dismiss() }
+                        .fontWeight(.semibold)
+                }
+            }
+            .sheet(isPresented: $showEditSheet) {
+                if let expense = viewModel.expense {
+                    EditExpenseView(expense: expense, viewModel: viewModel) {
+                        NotificationCenter.default.post(name: NSNotification.Name("ExpenseUpdated"), object: nil)
                     }
                 }
             }
@@ -92,12 +145,33 @@ struct ExpenseDetailView: View {
                     }
                 }
             } message: {
-                Text("Are you sure you want to delete this expense?")
+                Text("Are you sure you want to delete this expense? This action cannot be undone.")
             }
             .task {
                 await viewModel.loadExpense()
             }
         }
+    }
+    
+    private func infoRow(icon: String, label: String, value: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.subheadline)
+                .foregroundColor(.blue)
+                .frame(width: 24)
+            
+            Text(label)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Spacer()
+            
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.medium)
+        }
+        .padding()
+        .background(Color(.systemBackground))
     }
     
     private func formatCurrency(_ amount: Double, currency: String) -> String {

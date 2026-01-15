@@ -14,48 +14,84 @@ struct SignUpView: View {
     @State private var showError = false
     @State private var agreedToTerms = false
     
+    // Animation States
+    @State private var isAnimating = false
+    @State private var appearScale = 0.8
+    @State private var appearOpacity = 0.0
+    
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: [.purple.opacity(0.6), .blue.opacity(0.4)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            // MARK: - Animated Immersive Background
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                // Dancing Blur 1
+                Circle()
+                    .fill(LinearGradient(colors: [.purple, .blue], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: 450, height: 450)
+                    .blur(radius: 90)
+                    .offset(x: isAnimating ? 100 : -100, y: isAnimating ? 150 : -150)
+                    .opacity(0.5)
+                
+                // Dancing Blur 2
+                Circle()
+                    .fill(LinearGradient(colors: [.pink, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: 350, height: 350)
+                    .blur(radius: 70)
+                    .offset(x: isAnimating ? -150 : 150, y: isAnimating ? -100 : 100)
+                    .opacity(0.4)
+            }
             .ignoresSafeArea()
+            .onAppear {
+                withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
+                    isAnimating = true
+                }
+            }
             
             ScrollView {
-                VStack(spacing: 30) {
+                VStack(spacing: 32) {
                     // Header
-                    VStack(spacing: 12) {
-                        Image(systemName: "person.circle.fill")
-                        
+                    VStack(spacing: 16) {
+                        Image(systemName: "person.badge.plus")
                             .font(.system(size: 60))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(
+                                LinearGradient(colors: [.white, .white.opacity(0.6)], startPoint: .top, endPoint: .bottom)
+                            )
+                            .shadow(color: .purple.opacity(0.5), radius: 15, x: 0, y: 8)
+                            .scaleEffect(appearScale)
+                            .opacity(appearOpacity)
+                            .animation(.springy.delay(0.1), value: appearScale)
                         
-                        Text("Create Account")
-                            .font(.system(size: 32, weight: .bold))
-                            .foregroundStyle(.white)
-                        
-                        Text("Join PocketPilot today")
-                            .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.9))
+                        VStack(spacing: 8) {
+                            Text("Create Account")
+                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+                            
+                            Text("Join PocketPilot today")
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.7))
+                        }
+                        .offset(y: appearOpacity == 1 ? 0 : 20)
+                        .opacity(appearOpacity)
+                        .animation(.gentle.delay(0.2), value: appearOpacity)
                     }
                     .padding(.top, 40)
                     
-                    // Sign Up Form
+                    // MARK: - Sign Up Form
                     VStack(spacing: 20) {
-                        CustomTextField(
-                            icon: "person.fill",
-                            placeholder: "First Name",
-                            text: $firstName
-                        )
-                        
-                        CustomTextField(
-                            icon: "person.fill",
-                            placeholder: "Last Name",
-                            text: $lastName
-                        )
+                        HStack(spacing: 16) {
+                            CustomTextField(
+                                icon: "person.fill",
+                                placeholder: "First Name",
+                                text: $firstName
+                            )
+                            
+                            CustomTextField(
+                                icon: "person.fill",
+                                placeholder: "Last Name",
+                                text: $lastName
+                            )
+                        }
                         
                         CustomTextField(
                             icon: "envelope.fill",
@@ -72,76 +108,110 @@ struct SignUpView: View {
                         )
                         
                         CustomSecureField(
-                            icon: "lock.fill",
+                            icon: "lock.rectangle.fill",
                             placeholder: "Confirm Password",
                             text: $confirmPassword,
                             showPassword: $showConfirmPassword
                         )
                         
-                        if !password.isEmpty && !confirmPassword.isEmpty {
+                        if !password.isEmpty {
                             PasswordStrengthView(password: password)
+                                .transition(.opacity.combined(with: .move(edge: .top)))
                         }
                         
                         // Terms and Conditions
-                        HStack(spacing: 12) {
-                            Button {
+                        Button {
+                            withAnimation(.springy) {
                                 agreedToTerms.toggle()
-                            } label: {
-                                Image(systemName: agreedToTerms ? "checkmark.square.fill" : "square")
-                                    .font(.title3)
-                                    .foregroundStyle(.white)
                             }
-                            
-                            Text("I agree to the Terms & Conditions")
-                                .font(.footnote)
-                                .foregroundStyle(.white)
+                        } label: {
+                            HStack(spacing: 12) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(.white.opacity(0.5), lineWidth: 1.5)
+                                        .frame(width: 22, height: 22)
+                                    
+                                    if agreedToTerms {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundStyle(.white)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .fill(Color.blue)
+                                                    .frame(width: 22, height: 22)
+                                            )
+                                    }
+                                }
+                                
+                                Text("I agree to the Terms & Conditions")
+                                    .font(.footnote)
+                                    .foregroundStyle(.white.opacity(0.8))
+                            }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 4)
                         
                         // Sign Up Button
                         Button {
-                            Task {
-                                await handleSignUp()
-                            }
+                            Task { await handleSignUp() }
                         } label: {
-                            if authManager.isLoading {
-                                ProgressView()
-                                    .tint(.white)
-                            } else {
-                                Text("Sign Up")
-                                    .font(.headline)
-                                    .foregroundStyle(.white)
+                            HStack {
+                                if authManager.isLoading {
+                                    ProgressView().tint(.white)
+                                } else {
+                                    Text("Create Account")
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                }
                             }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(.white.opacity(0.2))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(.white.opacity(0.3), lineWidth: 1)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(
+                                LinearGradient(colors: [.purple, .blue], startPoint: .leading, endPoint: .trailing)
+                            )
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
                         }
                         .disabled(authManager.isLoading || !isValidForm)
                         .opacity(isValidForm ? 1 : 0.6)
+                        .scaleEffect(isValidForm ? 1.0 : 0.98)
+                        .animation(.springy, value: isValidForm)
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 32)
+                    .padding(24)
                     .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                    .clipShape(RoundedRectangle(cornerRadius: 32))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 32)
+                            .stroke(.white.opacity(0.1), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.2), radius: 30, x: 0, y: 20)
                     .padding(.horizontal, 20)
+                    .offset(y: appearOpacity == 1 ? 0 : 40)
+                    .opacity(appearOpacity)
+                    .animation(.gentle.delay(0.3), value: appearOpacity)
                     
                     Spacer()
                 }
+                .padding(.bottom, 40)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            appearScale = 1.0
+            appearOpacity = 1.0
+        }
+        .navigationBarBackButtonHidden()
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
                     dismiss()
                 } label: {
-                    Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.headline)
+                    .foregroundStyle(.white)
                 }
             }
         }
@@ -175,4 +245,8 @@ struct SignUpView: View {
             showError = true
         }
     }
+}
+
+#Preview {
+    SignUpView()
 }
