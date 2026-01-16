@@ -71,11 +71,11 @@ struct LoginView: View {
                             VStack(spacing: 8) {
                                 Text("PocketPilot")
                                     .font(.system(size: 40, weight: .bold, design: .rounded))
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(.primary)
                                 
                                 Text("Track expenses effortlessly")
                                     .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.7))
+                                    .foregroundStyle(.secondary)
                             }
                             .offset(y: appearOpacity == 1 ? 0 : 20)
                             .opacity(appearOpacity)
@@ -106,7 +106,7 @@ struct LoginView: View {
                                 Text("Forgot Password?")
                                     .font(.footnote)
                                     .fontWeight(.medium)
-                                    .foregroundStyle(.white.opacity(0.8))
+                                    .foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             
@@ -140,14 +140,14 @@ struct LoginView: View {
                             // Sign Up Divert
                             HStack {
                                 Text("Don't have an account?")
-                                    .foregroundStyle(.white.opacity(0.6))
+                                    .foregroundStyle(.secondary)
                                 
                                 Button {
                                     navigateToSignUp = true
                                 } label: {
                                     Text("Sign Up")
                                         .fontWeight(.bold)
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(.primary)
                                 }
                             }
                             .font(.subheadline)

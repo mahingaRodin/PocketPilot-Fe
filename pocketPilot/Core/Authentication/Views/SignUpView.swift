@@ -65,11 +65,11 @@ struct SignUpView: View {
                         VStack(spacing: 8) {
                             Text("Create Account")
                                 .font(.system(size: 32, weight: .bold, design: .rounded))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(.primary)
                             
                             Text("Join PocketPilot today")
                                 .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.7))
+                                .foregroundStyle(.secondary)
                         }
                         .offset(y: appearOpacity == 1 ? 0 : 20)
                         .opacity(appearOpacity)
@@ -145,7 +145,7 @@ struct SignUpView: View {
                                 
                                 Text("I agree to the Terms & Conditions")
                                     .font(.footnote)
-                                    .foregroundStyle(.white.opacity(0.8))
+                                    .foregroundStyle(.secondary)
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -211,7 +211,7 @@ struct SignUpView: View {
                         Text("Back")
                     }
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                 }
             }
         }

@@ -10,9 +10,9 @@ import Foundation
 struct Constants {
     struct API {
         // Update this with your actual backend URL
-        static let baseURL = "http://127.0.0.1:8080/api/v1"
+        static let baseURL = "http://10.12.73.61:8080/api/v1"
         static let timeout: TimeInterval = 30.0
-        static let webSocketURL = "ws://127.0.0.1:8080/ws"
+        static let webSocketURL = "ws://10.12.73.61:8080/ws"
     }
     
     struct App {
