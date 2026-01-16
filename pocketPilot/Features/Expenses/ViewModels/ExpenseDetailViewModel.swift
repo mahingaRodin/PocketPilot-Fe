@@ -147,4 +147,39 @@ class ExpenseDetailViewModel {
         
         isLoading = false
     }
+    
+    func generateReceipt() async {
+        guard let expense = expense else { return }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let data = try await apiClient.requestData(
+                .generateReceipt(expense.id),
+                method: .post
+            )
+            
+            let decoder = JSONDecoder.api
+            var decodedExpense: Expense?
+            
+            if let response = try? decoder.decode(MainActorAPIResponse<Expense>.self, from: data) {
+                if response.success, let result = response.data {
+                    decodedExpense = result
+                } else if let error = response.error {
+                    self.errorMessage = error.message
+                }
+            } else if let result = try? decoder.decode(Expense.self, from: data) {
+                decodedExpense = result
+            }
+            
+            if let newExpense = decodedExpense {
+                self.expense = newExpense
+            }
+        } catch {
+            errorMessage = "Failed to generate receipt: \(error.localizedDescription)"
+        }
+        
+        isLoading = false
+    }
 }

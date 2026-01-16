@@ -11,6 +11,11 @@ struct DashboardView: View {
     @State private var viewModel = DashboardViewModel()
     @State private var appearOpacity = 0.0
     @State private var appearOffset: CGFloat = 20
+    @State private var showScanner = false
+    
+    // Removed duplicate 'currency' state if it existed or ensuring clean state
+    // DashboardView doesn't have currency state in previous read, but AddExpenseView did.
+    // Focusing on inserting TrendChart.
     
     var body: some View {
         NavigationStack {
@@ -75,6 +80,18 @@ struct DashboardView: View {
                                 .animation(.staggered(index: 2), value: appearOpacity)
                             }
                             
+                            // Trend Chart
+                            TrendChartView(data: viewModel.trendData)
+                                .offset(y: appearOffset)
+                                .opacity(appearOpacity)
+                                .animation(.staggered(index: 2), value: appearOpacity)
+                            
+                            // Recent Expenses
+                            RecentExpensesList(expenses: data.recentExpenses ?? [])
+                                .offset(y: appearOffset)
+                                .opacity(appearOpacity)
+                                .animation(.staggered(index: 3), value: appearOpacity)
+
                             // Category Breakdown
                             if let categories = data.categoryBreakdown, !categories.isEmpty {
                                 VStack(alignment: .leading, spacing: 16) {
@@ -88,7 +105,7 @@ struct DashboardView: View {
                                                 CategoryBreakdownCard(breakdown: breakdown)
                                                     .offset(y: appearOffset)
                                                     .opacity(appearOpacity)
-                                                    .animation(.staggered(index: index + 3), value: appearOpacity)
+                                                    .animation(.staggered(index: index + 4), value: appearOpacity)
                                             }
                                         }
                                         .padding(.horizontal)
@@ -96,23 +113,44 @@ struct DashboardView: View {
                                 }
                                 .padding(.vertical, 8)
                             }
-                            
-                            // Recent Expenses
-                            RecentExpensesList(expenses: data.recentExpenses ?? [])
-                                .offset(y: appearOffset)
-                                .opacity(appearOpacity)
-                                .animation(.staggered(index: 8), value: appearOpacity)
                         }
+                    }
                     }
                     .padding(.vertical)
                 }
+                
+                // Floating Action Button
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button {
+                            showScanner = true
+                        } label: {
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 24))
+                                .foregroundColor(.white)
+                                .frame(width: 60, height: 60)
+                                .background(
+                                    LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                )
+                                .clipShape(Circle())
+                                .shadow(color: .blue.opacity(0.4), radius: 10, x: 0, y: 5)
+                        }
+                        .padding()
+                    }
+                }
             }
             .navigationTitle("Dashboard")
+            .fullScreenCover(isPresented: $showScanner) {
+                ReceiptScannerView(isPresented: $showScanner)
+            }
             .refreshable {
                 await viewModel.loadDashboard()
             }
             .task {
                 await viewModel.loadDashboard()
+                await viewModel.loadTrendData()
                 withAnimation(.gentle) {
                     appearOpacity = 1.0
                     appearOffset = 0
@@ -120,7 +158,7 @@ struct DashboardView: View {
             }
         }
     }
-}
+
 
 struct CategoryBreakdownCard: View {
     let breakdown: CategoryBreakdown

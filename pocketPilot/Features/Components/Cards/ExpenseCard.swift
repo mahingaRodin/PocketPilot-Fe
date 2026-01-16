@@ -52,6 +52,16 @@ struct ExpenseCard: View {
                     Text(expense.date, style: .date)
                         .font(.caption)
                         .foregroundColor(.secondary)
+                    
+                    if expense.receiptURL != nil {
+                        Text("•")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Image(systemName: "doc.text.fill")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
                 }
             }
             

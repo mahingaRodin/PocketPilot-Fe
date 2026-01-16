@@ -71,7 +71,50 @@ struct ExpenseDetailView: View {
                             .frame(maxWidth: .infinity)
                             .background(Color(.systemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 32))
+                            .background(Color(.systemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 32))
                             .padding(.horizontal)
+                            
+                            // Receipt Section
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Receipt")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+                                
+                                if let receiptURL = expense.receiptURL, let url = URL(string: receiptURL) {
+                                    NavigationLink(destination: ReceiptPreviewView(url: url)) {
+                                        HStack {
+                                            Image(systemName: "doc.text.fill")
+                                                .foregroundColor(.blue)
+                                            Text("View Receipt")
+                                                .fontWeight(.medium)
+                                            Spacer()
+                                            Image(systemName: "chevron.right")
+                                                .foregroundColor(.secondary)
+                                        }
+                                        .padding()
+                                        .background(Color(.systemBackground))
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    }
+                                    .padding(.horizontal)
+                                } else {
+                                    Button(action: {
+                                        Task { await viewModel.generateReceipt() }
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "wand.and.stars")
+                                            Text("Generate AI Receipt")
+                                        }
+                                        .fontWeight(.semibold)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.purple.opacity(0.1))
+                                        .foregroundColor(.purple)
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
                             
                             // Details Section
                             VStack(alignment: .leading, spacing: 16) {

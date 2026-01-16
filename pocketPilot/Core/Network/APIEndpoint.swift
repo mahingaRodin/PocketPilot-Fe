@@ -29,6 +29,12 @@ enum APIEndpoint: Sendable {
     case deleteExpense(String)
     case getDashboard
     
+    // Receipt endpoints
+    case scanReceipt
+    case uploadReceipt
+    case generateReceipt(String)
+    case viewReceipt(String)
+    
     var path: String {
         switch self {
         case .login:
@@ -65,6 +71,14 @@ enum APIEndpoint: Sendable {
             return "/expenses/\(id)"
         case .getDashboard:
             return "/dashboard"
+        case .scanReceipt:
+            return "/receipts/scan"
+        case .uploadReceipt:
+            return "/receipts/upload"
+        case .generateReceipt(let id):
+            return "/receipts/generate/\(id)"
+        case .viewReceipt(let id):
+            return "/receipts/\(id)/view"
         }
     }
     
@@ -85,7 +99,7 @@ enum APIEndpoint: Sendable {
     
     var method: HTTPMethod {
         switch self {
-        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense:
+        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt:
             return .post
         case .updateProfile, .updateExpense:
             return .put

@@ -27,6 +27,7 @@ struct CustomSecureField: View {
             .font(.body)
             .focused($isFocused)
             .autocapitalization(.none)
+            .foregroundStyle(.black)
             
             Button {
                 showPassword.toggle()

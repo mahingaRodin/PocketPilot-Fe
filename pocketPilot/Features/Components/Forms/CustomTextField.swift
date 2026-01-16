@@ -22,6 +22,7 @@ struct CustomTextField: View {
                 .focused($isFocused)
                 .keyboardType(keyboardType)
                 .autocapitalization(.none)
+                .foregroundStyle(.black)
         }
         .padding()
         .background(

@@ -17,13 +17,14 @@ struct Expense: Codable, Identifiable, Sendable {
     let description: String
     let date: Date
     let receiptURL: String?
+    let items: [ReceiptItem]?
     let notes: String?
     let tags: [String]?
     let createdAt: Date
     let updatedAt: Date
     
     enum CodingKeys: String, CodingKey {
-        case id, amount, currency, description, date, notes, tags
+        case id, amount, currency, description, date, notes, tags, items, receiptURL
         case userID = "userId"
         case teamID = "teamId"
         case categoryString = "category"
@@ -48,7 +49,8 @@ struct Expense: Codable, Identifiable, Sendable {
             date = try container.decodeIfPresent(Date.self, forKey: .date) ?? Date()
             createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
             updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? Date()
-            receiptURL = nil
+            receiptURL = try container.decodeIfPresent(String.self, forKey: .receiptURL)
+            items = try container.decodeIfPresent([ReceiptItem].self, forKey: .items)
             
             // Handle Category - backend sends string, model wants Category object
             if let categoryObj = try? container.decode(Category.self, forKey: .categoryString) {
@@ -80,7 +82,7 @@ struct Expense: Codable, Identifiable, Sendable {
     }
     
     // Memberwise initializer for manual creation
-    init(id: String, userID: String?, teamID: String?, amount: Double, currency: String?, category: Category, description: String, date: Date, receiptURL: String?, notes: String?, tags: [String], createdAt: Date, updatedAt: Date) {
+    init(id: String, userID: String?, teamID: String?, amount: Double, currency: String?, category: Category, description: String, date: Date, receiptURL: String?, items: [ReceiptItem]? = nil, notes: String?, tags: [String], createdAt: Date, updatedAt: Date) {
         self.id = id
         self.userID = userID
         self.teamID = teamID
@@ -90,6 +92,7 @@ struct Expense: Codable, Identifiable, Sendable {
         self.description = description
         self.date = date
         self.receiptURL = receiptURL
+        self.items = items
         self.notes = notes
         self.tags = tags
         self.createdAt = createdAt
@@ -106,6 +109,8 @@ struct Expense: Codable, Identifiable, Sendable {
         try container.encode(description, forKey: .description)
         try container.encodeIfPresent(notes, forKey: .notes)
         try container.encodeIfPresent(tags, forKey: .tags)
+        try container.encodeIfPresent(items, forKey: .items)
+        try container.encodeIfPresent(receiptURL, forKey: .receiptURL)
         try container.encode(date, forKey: .date)
         try container.encode(createdAt, forKey: .createdAt)
         try container.encode(updatedAt, forKey: .updatedAt)
