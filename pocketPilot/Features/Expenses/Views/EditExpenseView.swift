@@ -194,6 +194,8 @@ struct EditExpenseView: View {
                 date: date,
                 notes: notes.isEmpty ? nil : notes
             )
+            // Reload the expense to get the updated receipt URL (backend regenerates on update)
+            await viewModel.loadExpense()
             onUpdate()
             withAnimation { showSuccess = true }
             try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)

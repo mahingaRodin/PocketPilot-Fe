@@ -12,13 +12,13 @@ struct User: Codable, Identifiable, Sendable {
     let email: String?
     let firstName: String?
     let lastName: String?
-    let profileImageURL: String?
+    let profilePictureURL: String?
     let createdAt: Date?
     let updatedAt: Date?
     
     enum CodingKeys: String, CodingKey {
-        case id, email, firstName, lastName, profileImageURL, createdAt, updatedAt
-        case first_name, last_name, profile_image_url, created_at, updated_at
+        case id, email, firstName, lastName, profilePictureURL, createdAt, updatedAt
+        case first_name, last_name, profile_picture_url, created_at, updated_at
     }
     
     init(from decoder: Decoder) throws {
@@ -36,8 +36,8 @@ struct User: Codable, Identifiable, Sendable {
         lastName = try container.decodeIfPresent(String.self, forKey: .lastName)
             ?? container.decodeIfPresent(String.self, forKey: .last_name)
         
-        profileImageURL = try container.decodeIfPresent(String.self, forKey: .profileImageURL)
-            ?? container.decodeIfPresent(String.self, forKey: .profile_image_url)
+        profilePictureURL = try container.decodeIfPresent(String.self, forKey: .profilePictureURL)
+            ?? container.decodeIfPresent(String.self, forKey: .profile_picture_url)
         
         createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt)
             ?? container.decodeIfPresent(Date.self, forKey: .created_at)
@@ -52,7 +52,7 @@ struct User: Codable, Identifiable, Sendable {
         try container.encodeIfPresent(email, forKey: .email)
         try container.encodeIfPresent(firstName, forKey: .firstName)
         try container.encodeIfPresent(lastName, forKey: .lastName)
-        try container.encodeIfPresent(profileImageURL, forKey: .profileImageURL)
+        try container.encodeIfPresent(profilePictureURL, forKey: .profilePictureURL)
         try container.encodeIfPresent(createdAt, forKey: .createdAt)
         try container.encodeIfPresent(updatedAt, forKey: .updatedAt)
     }

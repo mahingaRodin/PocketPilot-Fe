@@ -160,6 +160,10 @@ class ExpenseDetailViewModel {
                 method: .post
             )
             
+            if let json = String(data: data, encoding: .utf8) {
+                 print("DEBUG: [Receipt] Generate response: \(json)")
+            }
+            
             let decoder = JSONDecoder.api
             var decodedExpense: Expense?
             
@@ -171,12 +175,27 @@ class ExpenseDetailViewModel {
                 }
             } else if let result = try? decoder.decode(Expense.self, from: data) {
                 decodedExpense = result
+            } else if let path = String(data: data, encoding: .utf8), path.contains("/") {
+                // Fallback: If backend returns raw string path (e.g. "/receipts/file.pdf")
+                // We manually update the local expense with this path
+                print("DEBUG: [Receipt] Received path string, updating local expense.")
+                var updated = expense
+                // Remove quotes if present
+                let cleanPath = path.replacingOccurrences(of: "\"", with: "")
+                updated.receiptURL = cleanPath
+                decodedExpense = updated
             }
             
             if let newExpense = decodedExpense {
                 self.expense = newExpense
+                // Notify list to update
+                 NotificationCenter.default.post(name: NSNotification.Name("ExpenseUpdated"), object: nil)
+            } else {
+                 print("DEBUG: [Receipt] Failed to decode as Expense or path")
+                 throw APIError.decodingError("Could not decode receipt response")
             }
         } catch {
+            print("DEBUG: [Receipt] Error: \(error)")
             errorMessage = "Failed to generate receipt: \(error.localizedDescription)"
         }
         

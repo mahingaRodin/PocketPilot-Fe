@@ -145,6 +145,7 @@ final class APIClient: @unchecked Sendable {
         parameters: Parameters? = nil
     ) async throws -> Data {
         let url = baseURL + endpoint.path
+        print("DEBUG: [APIClient] Uploading to: \(url)")
         
         return try await withCheckedThrowingContinuation { continuation in
             session.upload(

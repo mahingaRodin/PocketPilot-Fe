@@ -6,5 +6,10 @@
 	<string>We need access to your camera to scan receipts.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to select receipt images.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

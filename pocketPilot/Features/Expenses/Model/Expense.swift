@@ -8,20 +8,20 @@
 import Foundation
 
 struct Expense: Codable, Identifiable, Sendable {
-    let id: String
-    let userID: String?
-    let teamID: String?
-    let amount: Double
-    let currency: String?
-    let category: Category
-    let description: String
-    let date: Date
-    let receiptURL: String?
-    let items: [ReceiptItem]?
-    let notes: String?
-    let tags: [String]?
-    let createdAt: Date
-    let updatedAt: Date
+    var id: String
+    var userID: String?
+    var teamID: String?
+    var amount: Double
+    var currency: String?
+    var category: Category
+    var description: String
+    var date: Date
+    var receiptURL: String?
+    var items: [ReceiptItem]?
+    var notes: String?
+    var tags: [String]?
+    var createdAt: Date
+    var updatedAt: Date
     
     enum CodingKeys: String, CodingKey {
         case id, amount, currency, description, date, notes, tags, items, receiptURL

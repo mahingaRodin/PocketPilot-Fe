@@ -35,6 +35,7 @@ struct CustomTextField: View {
                 .stroke(isFocused ? .blue.opacity(0.3) : .clear, lineWidth: 1)
         )
         .animation(.gentle, value: isFocused)
+        .colorScheme(.light) // Force light mode for visibility on white background
     }
 }
 

@@ -12,6 +12,10 @@ struct ProfileView: View {
     @State private var showEditProfile = false
     @State private var showSettings = false
     @State private var showLogoutAlert = false
+    @State private var showImagePicker = false
+    @State private var showPhotoOptions = false
+    @State private var imageSourceType: UIImagePickerController.SourceType = .photoLibrary
+    @State private var selectedImage: UIImage?
     
     var body: some View {
         NavigationStack {
@@ -23,25 +27,63 @@ struct ProfileView: View {
                         // Profile Header Card
                         VStack(spacing: 20) {
                             if let user = viewModel.currentUser {
-                                // Avatar Section
-                                ZStack {
-                                    Circle()
-                                        .fill(LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        .frame(width: 100, height: 100)
-                                        .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
-                                    
-                                    if let imageURL = user.profileImageURL, !imageURL.isEmpty {
-                                        AsyncImage(url: URL(string: imageURL)) { image in
-                                            image.resizable().aspectRatio(contentMode: .fill)
-                                        } placeholder: {
-                                            ProgressView()
+                                // Avatar Section with Edit Button
+                                ZStack(alignment: .bottomTrailing) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                            .frame(width: 100, height: 100)
+                                            .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
+                                        
+                                        if let imageURL = user.profilePictureURL, !imageURL.isEmpty {
+                                            // Construct full URL - backend returns relative path like /profile-pictures/uuid.jpg
+                                            let baseURL = Constants.API.baseURL.replacingOccurrences(of: "/api/v1", with: "")
+                                            let fullURLString = "\(baseURL)\(imageURL)"
+                                            let _ = print("DEBUG: [ProfileView] Image URL: \(fullURLString)")
+                                            
+                                            if let fullURL = URL(string: fullURLString) {
+                                                AsyncImage(url: fullURL) { phase in
+                                                    switch phase {
+                                                    case .success(let image):
+                                                        image.resizable().aspectRatio(contentMode: .fill)
+                                                    case .failure(let error):
+                                                        VStack {
+                                                            Image(systemName: "exclamationmark.triangle")
+                                                            Text("Failed to load")
+                                                                .font(.caption2)
+                                                        }
+                                                        .onAppear {
+                                                            print("DEBUG: [ProfileView] Image load failed: \(error)")
+                                                        }
+                                                    case .empty:
+                                                        ProgressView()
+                                                    @unknown default:
+                                                        ProgressView()
+                                                    }
+                                                }
+                                                .frame(width: 100, height: 100)
+                                                .clipShape(Circle())
+                                            }
+                                        } else {
+                                            Text("\(user.firstName?.prefix(1) ?? "")\(user.lastName?.prefix(1) ?? "")")
+                                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                                .foregroundColor(.white)
                                         }
-                                        .frame(width: 100, height: 100)
-                                        .clipShape(Circle())
-                                    } else {
-                                        Text("\(user.firstName?.prefix(1) ?? "")\(user.lastName?.prefix(1) ?? "")")
-                                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                                            .foregroundColor(.white)
+                                    }
+                                    
+                                    // Edit Button
+                                    Button {
+                                        showPhotoOptions = true
+                                    } label: {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.blue)
+                                                .frame(width: 32, height: 32)
+                                            Image(systemName: "camera.fill")
+                                                .font(.system(size: 14))
+                                                .foregroundColor(.white)
+                                        }
+                                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                                     }
                                 }
                                 
@@ -105,6 +147,35 @@ struct ProfileView: View {
             }
             .onAppear {
                 viewModel.loadProfile()
+            }
+            .sheet(isPresented: $showImagePicker) {
+                ImagePicker(selectedImage: $selectedImage, sourceType: imageSourceType)
+            }
+            .onChange(of: selectedImage) { oldValue, newValue in
+                if let image = newValue {
+                    Task {
+                        await viewModel.uploadProfilePicture(image)
+                        selectedImage = nil
+                    }
+                }
+            }
+            .confirmationDialog("Profile Picture", isPresented: $showPhotoOptions, titleVisibility: .visible) {
+                Button("Take Photo") {
+                    imageSourceType = .camera
+                    showImagePicker = true
+                }
+                Button("Choose from Library") {
+                    imageSourceType = .photoLibrary
+                    showImagePicker = true
+                }
+                if viewModel.currentUser?.profilePictureURL != nil {
+                    Button("Remove Photo", role: .destructive) {
+                        Task {
+                            await viewModel.deleteProfilePicture()
+                        }
+                    }
+                }
+                Button("Cancel", role: .cancel) { }
             }
         }
     }

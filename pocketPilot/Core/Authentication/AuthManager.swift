@@ -107,6 +107,11 @@ class AuthManager {
             }
             
         } catch let error as APIError {
+            // Special handling for login unauthorized errors
+            if case .unauthorized = error {
+                errorMessage = "Incorrect email or password"
+                throw APIError.serverError(401, "Incorrect email or password")
+            }
             errorMessage = error.localizedDescription
             throw error
         } catch {

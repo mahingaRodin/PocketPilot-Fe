@@ -20,7 +20,9 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(.systemGroupedBackground).ignoresSafeArea()
+                Color(.systemGroupedBackground)
+                    .ignoresSafeArea()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 ScrollView {
                     VStack(spacing: 24) {
@@ -91,7 +93,7 @@ struct DashboardView: View {
                                 .offset(y: appearOffset)
                                 .opacity(appearOpacity)
                                 .animation(.staggered(index: 3), value: appearOpacity)
-
+                            
                             // Category Breakdown
                             if let categories = data.categoryBreakdown, !categories.isEmpty {
                                 VStack(alignment: .leading, spacing: 16) {
@@ -115,9 +117,10 @@ struct DashboardView: View {
                             }
                         }
                     }
-                    }
                     .padding(.vertical)
                 }
+                .scrollContentBackground(.hidden)
+                .background(Color(.systemGroupedBackground))
                 
                 // Floating Action Button
                 VStack {
@@ -158,7 +161,9 @@ struct DashboardView: View {
             }
         }
     }
-
+    
+    
+}
 
 struct CategoryBreakdownCard: View {
     let breakdown: CategoryBreakdown

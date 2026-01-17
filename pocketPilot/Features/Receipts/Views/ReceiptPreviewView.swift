@@ -12,7 +12,13 @@ struct ReceiptPreviewView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        let request = URLRequest(url: url)
+        var request = URLRequest(url: url)
+        
+        // Add authentication token if available
+        if let token = KeychainManager.shared.getAccessToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
         uiView.load(request)
     }
 }

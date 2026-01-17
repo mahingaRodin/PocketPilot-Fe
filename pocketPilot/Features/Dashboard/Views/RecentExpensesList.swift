@@ -44,7 +44,10 @@ struct RecentExpensesList: View {
             } else {
                 VStack(spacing: 12) {
                     ForEach(expenses.prefix(5)) { expense in
-                        ExpenseCard(expense: expense)
+                        NavigationLink(destination: ExpenseDetailView(expenseId: expense.id)) {
+                            ExpenseCard(expense: expense)
+                        }
+                        .buttonStyle(PlainButtonStyle()) // Preserve card styling
                     }
                 }
                 .padding(.horizontal)

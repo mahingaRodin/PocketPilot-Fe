@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B438A4ED2F1A23460092E3AA /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = B438A4EC2F1A23460092E3AA /* KeychainAccess */; };
-		B44AA0242F1A31F200B2DDC2 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B44AA0232F1A31F200B2DDC2 /* Alamofire */; };
+		B48F938D2F1B5F080008475A /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B48F938C2F1B5F080008475A /* Alamofire */; };
+		B48F93922F1B5F220008475A /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = B48F93912F1B5F220008475A /* KeychainAccess */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -61,8 +61,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B438A4ED2F1A23460092E3AA /* KeychainAccess in Frameworks */,
-				B44AA0242F1A31F200B2DDC2 /* Alamofire in Frameworks */,
+				B48F938D2F1B5F080008475A /* Alamofire in Frameworks */,
+				B48F93922F1B5F220008475A /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -118,8 +118,8 @@
 			);
 			name = pocketPilot;
 			packageProductDependencies = (
-				B438A4EC2F1A23460092E3AA /* KeychainAccess */,
-				B44AA0232F1A31F200B2DDC2 /* Alamofire */,
+				B48F938C2F1B5F080008475A /* Alamofire */,
+				B48F93912F1B5F220008475A /* KeychainAccess */,
 			);
 			productName = pocketPilot;
 			productReference = B418328C2EE98E0700532A64 /* pocketPilot.app */;
@@ -150,8 +150,8 @@
 			mainGroup = B41832832EE98E0700532A64;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				B438A4EB2F1A23460092E3AA /* XCRemoteSwiftPackageReference "KeychainAccess" */,
-				B44AA0222F1A31F200B2DDC2 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				B48F938B2F1B5F080008475A /* XCRemoteSwiftPackageReference "Alamofire" */,
+				B48F93902F1B5F220008475A /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B418328D2EE98E0700532A64 /* Products */;
@@ -396,15 +396,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		B438A4EB2F1A23460092E3AA /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-		B44AA0222F1A31F200B2DDC2 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+		B48F938B2F1B5F080008475A /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
 			requirement = {
@@ -412,18 +404,26 @@
 				version = 5.11.0;
 			};
 		};
+		B48F93902F1B5F220008475A /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		B438A4EC2F1A23460092E3AA /* KeychainAccess */ = {
+		B48F938C2F1B5F080008475A /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B438A4EB2F1A23460092E3AA /* XCRemoteSwiftPackageReference "KeychainAccess" */;
-			productName = KeychainAccess;
-		};
-		B44AA0232F1A31F200B2DDC2 /* Alamofire */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B44AA0222F1A31F200B2DDC2 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			package = B48F938B2F1B5F080008475A /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		B48F93912F1B5F220008475A /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B48F93902F1B5F220008475A /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

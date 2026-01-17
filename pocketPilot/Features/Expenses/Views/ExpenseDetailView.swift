@@ -81,8 +81,9 @@ struct ExpenseDetailView: View {
                                     .font(.headline)
                                     .padding(.horizontal)
                                 
-                                if let receiptURL = expense.receiptURL, let url = URL(string: receiptURL) {
-                                    NavigationLink(destination: ReceiptPreviewView(url: url)) {
+                                if let receiptURL = expense.receiptURL, !receiptURL.isEmpty {
+                                    let viewURL = URL(string: "\(Constants.API.baseURL)/receipts/\(expense.id)/view")!
+                                    NavigationLink(destination: ReceiptPreviewView(url: viewURL)) {
                                         HStack {
                                             Image(systemName: "doc.text.fill")
                                                 .foregroundColor(.blue)

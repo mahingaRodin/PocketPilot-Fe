@@ -323,7 +323,13 @@ struct AddExpenseView: View {
                 "category": selectedCategory.name.lowercased(),
                 "notes": notes,
                 "date": ISO8601DateFormatter().string(from: date),
-                "items": (try? JSONEncoder().encode(items)) // This might need proper dict conversion if backend expects json obj
+                "items": items.map { item in
+                    [
+                        "name": item.name,
+                        "price": item.price,
+                        "quantity": item.quantity // Add other fields if needed
+                    ]
+                }
             ]
             
             do {

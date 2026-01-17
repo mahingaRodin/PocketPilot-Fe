@@ -83,7 +83,13 @@ class DashboardViewModel {
           
           var expenses: [Expense] = []
           
-          if let response = try? decoder.decode(MainActorAPIResponse<[Expense]>.self, from: data), let result = response.data {
+          // Try to decode as BackendExpenseResponse (the structure seen in logs)
+          if let backendResponse = try? decoder.decode(BackendExpenseResponse.self, from: data) {
+              expenses = backendResponse.expenses
+              print("DEBUG: [Trend] Decoded using BackendExpenseResponse. Found \(expenses.count) expenses.")
+          }
+           // Fallback decoding strategies
+          else if let response = try? decoder.decode(MainActorAPIResponse<[Expense]>.self, from: data), let result = response.data {
               expenses = result
           } else if let result = try? decoder.decode([Expense].self, from: data) {
               expenses = result
@@ -99,61 +105,43 @@ class DashboardViewModel {
           
           var chartData: [(date: Date, amount: Double)] = []
           
-          // If we have data, try to plot it meaningfully
           if let firstDate = sortedKeys.first, let lastDate = sortedKeys.last {
-              
-              // Decide on a range. If data spans more than 30 days, show last 30.
-              // If data is very sparse or old, just show the actual data points + intermediate zeros if the range isn't huge.
-              // Better strategy for "Massive UI":
-              // 1. If recent data (< 30 days old) exists, show last 30 days.
-              // 2. If all data is old, show the range of the data itself.
-              
-              let now = Date()
-              let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: now) ?? now
-              
-              var startDate = firstDate
-              var endDate = now
-              
-              // If we have recent activity, likely want to see that context
-              if lastDate > thirtyDaysAgo {
-                  startDate = thirtyDaysAgo
-              } else {
-                  // All data is old, just show the range of data
-                  startDate = firstDate
-                  endDate = lastDate
-              }
-              
-              // Normalize start date to start of day
-              startDate = calendar.startOfDay(for: startDate)
-              endDate = calendar.startOfDay(for: endDate)
-              
-              var currentDate = startDate
-              
-              // Prevent infinite loops or massive ranges (cap at 60 days if range is huge)
-              let daysDifference = calendar.dateComponents([.day], from: startDate, to: endDate).day ?? 0
-              if daysDifference > 60 {
-                   // If range is huge, just map the actual sorted keys to avoid looping thousands of days
-                   chartData = sortedKeys.map { date in
-                       let total = grouped[date]?.reduce(0) { $0 + $1.amount } ?? 0
-                       return (date: date, amount: total)
-                   }
-              } else {
-                  // Fill in the gaps
-                  while currentDate <= endDate {
+              // Always try to show the full range of data available, with a reasonable cap
+               // If range is massive (> 90 days), just show the last 90 days of ACTUAL data (or summary)
+               // But for now, let's just map the sorted keys to ensure NO data is hidden.
+               
+               // Fill gaps only if range is reasonable (< 60 days)
+               let daysDifference = calendar.dateComponents([.day], from: firstDate, to: lastDate).day ?? 0
+               
+               if daysDifference <= 60 {
+                   var currentDate = firstDate
+                   while currentDate <= lastDate {
                        let dailyExpenses = grouped[currentDate] ?? []
                        let total = dailyExpenses.reduce(0) { $0 + $1.amount }
                        chartData.append((date: currentDate, amount: total))
                        
-                       if let nextDate = calendar.date(byAdding: .day, value: 1, to: currentDate) {
-                           currentDate = nextDate
-                       } else {
-                           break
-                       }
-                  }
-              }
+                       guard let nextDate = calendar.date(byAdding: .day, value: 1, to: currentDate) else { break }
+                       currentDate = nextDate
+                   }
+               } else {
+                   // Range is too big, just show the actual data points
+                   chartData = sortedKeys.map { date in
+                       let total = grouped[date]?.reduce(0) { $0 + $1.amount } ?? 0
+                       return (date: date, amount: total)
+                   }
+                   // If we have massive gaps, this might look weird, but it's better than empty.
+               }
+          }
+          
+          // Verify we have data
+          if chartData.isEmpty && !expenses.isEmpty {
+               // Fallback: Just dump all expenses as points
+               chartData = expenses.map { (date: $0.date, amount: $0.amount) }
+               print("DEBUG: Trend fallback used.")
           }
           
           self.trendData = chartData
+          print("DEBUG: Loaded \(chartData.count) trend points from \(expenses.count) expenses.")
           
       } catch {
           print("DEBUG: Failed to load trend data: \(error)")
