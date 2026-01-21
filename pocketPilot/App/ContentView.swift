@@ -37,11 +37,17 @@ struct MainTabView: View {
                 }
                 .tag(1)
             
+            BudgetDashboardView()
+                .tabItem {
+                    Label("Budgets", systemImage: "chart.pie.fill")
+                }
+                .tag(2)
+            
             ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
-                .tag(2)
+                .tag(3)
         }
     }
 }

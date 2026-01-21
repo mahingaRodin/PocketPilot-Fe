@@ -41,6 +41,15 @@ enum APIEndpoint: Sendable {
     case deleteProfilePicture(String)
     case getProfilePicture(String)
     
+    // Budget endpoints
+    case getBudgets
+    case createBudget
+    case getBudgetSummary
+    case getBudgetAlerts
+    case markAlertRead(String)
+    case updateBudget(String)
+    case deleteBudget(String)
+    
     var path: String {
         switch self {
         case .login:
@@ -89,6 +98,16 @@ enum APIEndpoint: Sendable {
             return "/user/profile-picture/\(id)"
         case .deleteProfilePicture(let id):
             return "/user/profile-picture/\(id)"
+        case .getBudgets, .createBudget:
+            return "/budgets"
+        case .getBudgetSummary:
+            return "/budgets/summary"
+        case .getBudgetAlerts:
+            return "/budgets/alerts"
+        case .markAlertRead(let id):
+            return "/budgets/alerts/\(id)/read"
+        case .updateBudget(let id), .deleteBudget(let id):
+            return "/budgets/\(id)"
         }
     }
     
@@ -118,11 +137,11 @@ enum APIEndpoint: Sendable {
     
     var method: HTTPMethod {
         switch self {
-        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt, .uploadProfilePicture(_):
+        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt, .uploadProfilePicture(_), .createBudget:
             return .post
-        case .updateProfile, .updateExpense, .updateProfilePicture(_):
+        case .updateProfile, .updateExpense, .updateProfilePicture(_), .markAlertRead(_), .updateBudget(_):
             return .put
-        case .deleteExpense, .deleteProfilePicture(_):
+        case .deleteExpense, .deleteProfilePicture(_), .deleteBudget(_):
             return .delete
         default:
             return .get
