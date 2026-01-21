@@ -60,6 +60,11 @@ enum APIEndpoint: Sendable {
     case testBudgetAlert
     case testDailySummary
     
+    // Report/Export endpoints
+    case exportExpenses
+    case listReports
+    case downloadReport(String)
+    
     var path: String {
         switch self {
         case .login:
@@ -134,6 +139,13 @@ enum APIEndpoint: Sendable {
             return "/notifications/test/budget-alert"
         case .testDailySummary:
             return "/notifications/test/daily-summary"
+            
+        case .exportExpenses:
+            return "/reports/export"
+        case .listReports:
+            return "/reports/list"
+        case .downloadReport(let filename):
+            return "/reports/download/\(filename)"
         }
     }
     
@@ -163,7 +175,7 @@ enum APIEndpoint: Sendable {
     
     var method: HTTPMethod {
         switch self {
-        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt, .uploadProfilePicture(_), .createBudget, .registerPushToken, .testBudgetAlert, .testDailySummary:
+        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt, .uploadProfilePicture(_), .createBudget, .registerPushToken, .testBudgetAlert, .testDailySummary, .exportExpenses:
             return .post
         case .updateProfile, .updateExpense, .updateProfilePicture(_), .markAlertRead(_), .updateBudget(_), .updateNotificationPreferences, .markNotificationRead(_), .markAllNotificationsRead:
             return .put

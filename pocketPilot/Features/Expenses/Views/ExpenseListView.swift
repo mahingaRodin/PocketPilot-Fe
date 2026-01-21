@@ -10,6 +10,7 @@ import SwiftUI
 struct ExpenseListView: View {
     @State private var viewModel = ExpenseListViewModel()
     @State private var showAddExpense = false
+    @State private var showExport = false
     @State private var selectedExpense: Expense?
     
     var body: some View {
@@ -123,6 +124,13 @@ struct ExpenseListView: View {
             }
             .navigationTitle("Expenses")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { showExport = true }) {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundStyle(.blue)
+                    }
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showAddExpense = true }) {
                         Image(systemName: "plus.circle.fill")
@@ -134,6 +142,9 @@ struct ExpenseListView: View {
             }
             .sheet(isPresented: $showAddExpense) {
                 AddExpenseView()
+            }
+            .sheet(isPresented: $showExport) {
+                ExportView()
             }
             .sheet(item: $selectedExpense) { expense in
                 ExpenseDetailView(expenseId: expense.id)
