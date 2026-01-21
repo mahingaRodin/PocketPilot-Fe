@@ -35,35 +35,17 @@ struct ProfileView: View {
                                             .frame(width: 100, height: 100)
                                             .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
                                         
-                                        if let imageURL = user.profilePictureURL, !imageURL.isEmpty {
-                                            // Construct full URL - backend returns relative path like /profile-pictures/uuid.jpg
-                                            let baseURL = Constants.API.baseURL.replacingOccurrences(of: "/api/v1", with: "")
-                                            let fullURLString = "\(baseURL)\(imageURL)"
-                                            let _ = print("DEBUG: [ProfileView] Image URL: \(fullURLString)")
+                                        if let _ = user.profilePictureURL {
+                                            let fullURL = URL(string: Constants.API.baseURL + APIEndpoint.getProfilePicture(user.id).path)
                                             
-                                            if let fullURL = URL(string: fullURLString) {
-                                                AsyncImage(url: fullURL) { phase in
-                                                    switch phase {
-                                                    case .success(let image):
-                                                        image.resizable().aspectRatio(contentMode: .fill)
-                                                    case .failure(let error):
-                                                        VStack {
-                                                            Image(systemName: "exclamationmark.triangle")
-                                                            Text("Failed to load")
-                                                                .font(.caption2)
-                                                        }
-                                                        .onAppear {
-                                                            print("DEBUG: [ProfileView] Image load failed: \(error)")
-                                                        }
-                                                    case .empty:
-                                                        ProgressView()
-                                                    @unknown default:
-                                                        ProgressView()
-                                                    }
-                                                }
-                                                .frame(width: 100, height: 100)
-                                                .clipShape(Circle())
+                                            AuthenticatedAsyncImage(url: fullURL) { image in
+                                                image.resizable()
+                                                    .aspectRatio(contentMode: .fill)
+                                            } placeholder: {
+                                                ProgressView()
                                             }
+                                            .frame(width: 100, height: 100)
+                                            .clipShape(Circle())
                                         } else {
                                             Text("\(user.firstName?.prefix(1) ?? "")\(user.lastName?.prefix(1) ?? "")")
                                                 .font(.system(size: 32, weight: .bold, design: .rounded))

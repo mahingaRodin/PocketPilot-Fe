@@ -39,6 +39,7 @@ enum APIEndpoint: Sendable {
     case uploadProfilePicture(String)
     case updateProfilePicture(String)
     case deleteProfilePicture(String)
+    case getProfilePicture(String)
     
     var path: String {
         switch self {
@@ -84,7 +85,7 @@ enum APIEndpoint: Sendable {
             return "/receipts/generate/\(id)"
         case .viewReceipt(let id):
             return "/receipts/\(id)/view"
-        case .uploadProfilePicture(let id), .updateProfilePicture(let id):
+        case .uploadProfilePicture(let id), .updateProfilePicture(let id), .getProfilePicture(let id):
             return "/user/profile-picture/\(id)"
         case .deleteProfilePicture(let id):
             return "/user/profile-picture/\(id)"
