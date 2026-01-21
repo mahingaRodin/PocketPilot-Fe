@@ -10,6 +10,17 @@ import SwiftUI
 struct BudgetDashboardView: View {
     @State private var viewModel = BudgetViewModel()
     @State private var showCreateBudget = false
+    @State private var searchText = ""
+    
+    var filteredBudgets: [BudgetStatus] {
+        guard let summary = viewModel.summary else { return [] }
+        if searchText.isEmpty {
+            return summary.budgets
+        }
+        return summary.budgets.filter { 
+            ($0.budget.categoryDisplay ?? $0.budget.category).localizedCaseInsensitiveContains(searchText)
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -56,9 +67,20 @@ struct BudgetDashboardView: View {
                                     EmptyBudgetView {
                                         showCreateBudget = true
                                     }
+                                } else if filteredBudgets.isEmpty && !searchText.isEmpty {
+                                    VStack(spacing: 12) {
+                                        Image(systemName: "magnifyingglass")
+                                            .font(.largeTitle)
+                                            .foregroundStyle(.secondary)
+                                        Text("No categories match '\(searchText)'")
+                                            .font(.headline)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .padding(.top, 40)
+                                    .frame(maxWidth: .infinity)
                                 } else {
                                     LazyVStack(spacing: 16) {
-                                        ForEach(summary.budgets) { budgetStatus in
+                                        ForEach(filteredBudgets) { budgetStatus in
                                             BudgetCard(budgetStatus: budgetStatus)
                                         }
                                     }
@@ -135,6 +157,7 @@ struct BudgetDashboardView: View {
                 Text(viewModel.errorMessage ?? "An unknown error occurred")
             }
         }
+        .searchable(text: $searchText, prompt: "Search categories")
         .task {
             await viewModel.loadBudgetSummary()
         }
@@ -376,8 +399,8 @@ struct BudgetCard: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color(budgetStatus.statusColor).opacity(0.1))
-                    .foregroundStyle(Color(budgetStatus.statusColor))
+                    .background(budgetStatus.statusColor.opacity(0.1))
+                    .foregroundStyle(budgetStatus.statusColor)
                     .clipShape(Capsule())
                     
                     Text("\(budgetStatus.daysRemaining) days left")
@@ -395,7 +418,7 @@ struct BudgetCard: View {
                             .frame(height: 8)
                         
                         Capsule()
-                            .fill(Color(budgetStatus.statusColor))
+                            .fill(budgetStatus.statusColor)
                             .frame(width: max(0, min(1.0, budgetStatus.percentage / 100)) * geo.size.width, height: 8)
                     }
                 }
@@ -550,19 +573,27 @@ struct CreateBudgetView: View {
     var onCreate: (String, Double, String, Double) -> Void
     @Environment(\.dismiss) var dismiss
     
-    @State private var selectedCategory = "food"
+    @State private var selectedCategory: Category = Category.defaultCategories[0]
     @State private var amount = ""
     @State private var alertThreshold = 80.0
-    
-    let categories = ["food", "transportation", "shopping", "utilities", "entertainment", "healthcare", "education", "travel", "other"]
     
     var body: some View {
         NavigationStack {
             Form {
                 Section("Category") {
                     Picker("Category", selection: $selectedCategory) {
-                        ForEach(categories, id: \.self) { category in
-                            Text(category.capitalized).tag(category)
+                        ForEach(Category.defaultCategories) { category in
+                            HStack {
+                                if let icon = category.icon {
+                                    if category.isEmoji {
+                                        Text(icon)
+                                    } else {
+                                        Image(systemName: icon)
+                                    }
+                                }
+                                Text(category.name)
+                            }
+                            .tag(category)
                         }
                     }
                 }
@@ -588,7 +619,7 @@ struct CreateBudgetView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Create") {
                         if let amountDouble = Double(amount) {
-                            onCreate(selectedCategory, amountDouble, "monthly", alertThreshold)
+                            onCreate(selectedCategory.name.lowercased(), amountDouble, "monthly", alertThreshold)
                             dismiss()
                         }
                     }

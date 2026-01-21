@@ -50,6 +50,16 @@ enum APIEndpoint: Sendable {
     case updateBudget(String)
     case deleteBudget(String)
     
+    // Notification endpoints
+    case getNotifications
+    case getUnreadNotificationCount
+    case updateNotificationPreferences
+    case markNotificationRead(String)
+    case markAllNotificationsRead
+    case registerPushToken
+    case testBudgetAlert
+    case testDailySummary
+    
     var path: String {
         switch self {
         case .login:
@@ -108,6 +118,22 @@ enum APIEndpoint: Sendable {
             return "/budgets/alerts/\(id)/read"
         case .updateBudget(let id), .deleteBudget(let id):
             return "/budgets/\(id)"
+        case .getNotifications:
+            return "/notifications"
+        case .getUnreadNotificationCount:
+            return "/notifications/unread/count"
+        case .updateNotificationPreferences:
+            return "/notifications/preferences"
+        case .markNotificationRead(let id):
+            return "/notifications/\(id)/read"
+        case .markAllNotificationsRead:
+            return "/notifications/read-all"
+        case .registerPushToken:
+            return "/notifications/register-push"
+        case .testBudgetAlert:
+            return "/notifications/test/budget-alert"
+        case .testDailySummary:
+            return "/notifications/test/daily-summary"
         }
     }
     
@@ -137,9 +163,9 @@ enum APIEndpoint: Sendable {
     
     var method: HTTPMethod {
         switch self {
-        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt, .uploadProfilePicture(_), .createBudget:
+        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt, .uploadProfilePicture(_), .createBudget, .registerPushToken, .testBudgetAlert, .testDailySummary:
             return .post
-        case .updateProfile, .updateExpense, .updateProfilePicture(_), .markAlertRead(_), .updateBudget(_):
+        case .updateProfile, .updateExpense, .updateProfilePicture(_), .markAlertRead(_), .updateBudget(_), .updateNotificationPreferences, .markNotificationRead(_), .markAllNotificationsRead:
             return .put
         case .deleteExpense, .deleteProfilePicture(_), .deleteBudget(_):
             return .delete

@@ -1,11 +1,4 @@
-//
-//  Budget.swift
-//  pocketPilot
-//
-//  Created by headie-one on 01/21/26.
-//
-
-import Foundation
+import SwiftUI
 
 struct Budget: Codable, Identifiable, Sendable {
     let id: UUID
@@ -33,13 +26,13 @@ struct BudgetStatus: Codable, Identifiable, Sendable {
     
     var id: UUID { budget.id }
     
-    var statusColor: String {
+    var statusColor: Color {
         switch status {
-        case "on_track": return "green"
-        case "approaching": return "orange"
-        case "warning": return "red"
-        case "exceeded": return "red"
-        default: return "gray"
+        case "on_track": return .green
+        case "approaching": return .orange
+        case "warning": return .red
+        case "exceeded": return .red
+        default: return .gray
         }
     }
     

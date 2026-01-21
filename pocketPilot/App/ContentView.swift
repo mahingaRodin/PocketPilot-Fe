@@ -21,10 +21,10 @@ struct ContentView: View {
 }
 
 struct MainTabView: View {
-    @State private var selectedTab = 0
+    @State private var notificationManager = NotificationManager.shared
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $notificationManager.selectedTab) {
             DashboardView()
                 .tabItem {
                     Label("Dashboard", systemImage: "chart.bar.fill")

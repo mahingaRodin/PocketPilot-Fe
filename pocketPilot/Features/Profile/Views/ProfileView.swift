@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileView: View {
     @State private var viewModel = ProfileViewModel()
     @State private var showEditProfile = false
+    @State private var showNotificationSettings = false
     @State private var showSettings = false
     @State private var showLogoutAlert = false
     @State private var showImagePicker = false
@@ -95,6 +96,10 @@ struct ProfileView: View {
                                 showEditProfile = true
                             }
                             
+                            menuButton(icon: "bell.fill", title: "Notifications", color: .orange) {
+                                showNotificationSettings = true
+                            }
+                            
                             menuButton(icon: "gearshape.fill", title: "Settings", color: .gray) {
                                 showSettings = true
                             }
@@ -115,6 +120,9 @@ struct ProfileView: View {
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showEditProfile) {
                 EditProfileView()
+            }
+            .navigationDestination(isPresented: $showNotificationSettings) {
+                NotificationSettingsView()
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()

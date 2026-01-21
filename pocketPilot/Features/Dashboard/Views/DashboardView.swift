@@ -9,9 +9,11 @@ import SwiftUI
 
 struct DashboardView: View {
     @State private var viewModel = DashboardViewModel()
+    @State private var notificationManager = NotificationManager.shared
     @State private var appearOpacity = 0.0
     @State private var appearOffset: CGFloat = 20
     @State private var showScanner = false
+    @State private var showNotifications = false
     
     // Removed duplicate 'currency' state if it existed or ensuring clean state
     // DashboardView doesn't have currency state in previous read, but AddExpenseView did.
@@ -145,15 +147,44 @@ struct DashboardView: View {
                 }
             }
             .navigationTitle("Dashboard")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showNotifications = true
+                    } label: {
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: "bell.fill")
+                                .font(.title3)
+                                .foregroundStyle(.primary)
+                            
+                            if notificationManager.unreadCount > 0 {
+                                Text("\(notificationManager.unreadCount)")
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(.white)
+                                    .padding(4)
+                                    .background(.red)
+                                    .clipShape(Circle())
+                                    .offset(x: 10, y: -10)
+                            }
+                        }
+                    }
+                }
+            }
             .fullScreenCover(isPresented: $showScanner) {
                 ReceiptScannerView(isPresented: $showScanner)
             }
+            .sheet(isPresented: $showNotifications) {
+                NotificationListView()
+            }
             .refreshable {
                 await viewModel.loadDashboard()
+                await notificationManager.fetchUnreadCount()
             }
             .task {
                 await viewModel.loadDashboard()
                 await viewModel.loadTrendData()
+                await notificationManager.fetchUnreadCount()
                 withAnimation(.gentle) {
                     appearOpacity = 1.0
                     appearOffset = 0
