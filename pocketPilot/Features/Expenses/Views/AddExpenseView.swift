@@ -376,6 +376,13 @@ struct AddExpenseView: View {
             
             if success {
                 NotificationCenter.default.post(name: NSNotification.Name("ExpenseUpdated"), object: nil)
+                
+                // Trigger budget threshold check
+                Task {
+                    let budgetVM = BudgetViewModel()
+                    await budgetVM.checkThresholds()
+                }
+                
                 withAnimation { showSuccess = true }
                 try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
                 dismiss()

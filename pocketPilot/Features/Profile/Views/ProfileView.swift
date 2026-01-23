@@ -37,7 +37,8 @@ struct ProfileView: View {
                                             .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
                                         
                                         if let _ = user.profilePictureURL {
-                                            let fullURL = URL(string: Constants.API.baseURL + APIEndpoint.getProfilePicture(user.id).path)
+                                            let timestamp = user.updatedAt?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
+                                            let fullURL = URL(string: Constants.API.baseURL + APIEndpoint.getProfilePicture(user.id).path + "?v=\(timestamp)")
                                             
                                             AuthenticatedAsyncImage(url: fullURL) { image in
                                                 image.resizable()

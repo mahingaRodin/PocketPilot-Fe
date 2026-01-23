@@ -165,4 +165,18 @@ class BudgetViewModel {
             print("DEBUG: [Budget] Failed to mark alert as read: \(error)")
         }
     }
+    
+    func checkThresholds() async {
+        // Refresh summary to get latest spending vs limit
+        await loadBudgetSummary()
+        
+        // Trigger backend logic to generate notifications if any threshold is exceeded
+        _ = try? await apiClient.requestData(.testBudgetAlert, method: .post)
+        
+        // Final refresh to see the new alerts in UI if any
+        await loadBudgetSummary()
+        
+        // Update notification badge
+        await NotificationManager.shared.fetchUnreadCount()
+    }
 }

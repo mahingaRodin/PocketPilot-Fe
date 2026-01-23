@@ -16,6 +16,7 @@ struct ExportView: View {
     @State private var endDate = Date()
     @State private var selectedCategory = "All"
     @State private var showHistory = false
+    @State private var isDownloading = false
     
     let formats = ["csv", "pdf"]
     let categories = ["All"] + Category.defaultCategories.map { $0.name }
@@ -59,25 +60,26 @@ struct ExportView: View {
                             )
                             
                             if success, let filename = viewModel.lastExportedFilename {
-                                // "View in System" - download and share immediately
+                                isDownloading = true
                                 await FileSharer.shared.downloadAndShare(
                                     filename: filename,
                                     endpoint: .downloadReport(filename)
                                 )
+                                isDownloading = false
                             }
                         }
                     } label: {
                         HStack {
-                            if viewModel.isExporting {
+                            if viewModel.isExporting || isDownloading {
                                 ProgressView()
                                     .padding(.trailing, 8)
                             }
-                            Text("Generate & View Report")
+                            Text(isDownloading ? "Downloading..." : (viewModel.isExporting ? "Generating..." : "Generate & View Report"))
                                 .fontWeight(.bold)
                         }
                         .frame(maxWidth: .infinity)
                     }
-                    .disabled(viewModel.isExporting)
+                    .disabled(viewModel.isExporting || isDownloading)
                 } footer: {
                     Text("The report will be generated and opened in the system previewer.")
                 }

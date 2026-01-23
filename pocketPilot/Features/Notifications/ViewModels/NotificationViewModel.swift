@@ -124,8 +124,34 @@ class NotificationViewModel {
         }
     }
     
-    func clearAll() {
-        notifications = []
+    func deleteNotification(notificationId: UUID) async {
+        do {
+            _ = try await apiClient.requestData(
+                .deleteNotification(notificationId.uuidString),
+                method: .delete
+            )
+            notifications.removeAll(where: { $0.id == notificationId })
+            await fetchUnreadCount()
+        } catch {
+            print("DEBUG: [Notifications] Failed to delete notification: \(error)")
+        }
+    }
+    
+    func clearAll() async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            _ = try await apiClient.requestData(.deleteAllNotifications, method: .delete)
+            notifications = []
+            await fetchUnreadCount()
+            successMessage = "All notifications cleared"
+            showSuccess = true
+        } catch {
+            print("DEBUG: [Notifications] Failed to clear all notifications: \(error)")
+            errorMessage = "Failed to clear notifications"
+            showError = true
+        }
+        isLoading = false
     }
     
     func navigate(for notification: Notification) {

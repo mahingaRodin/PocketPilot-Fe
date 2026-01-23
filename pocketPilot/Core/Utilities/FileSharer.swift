@@ -35,17 +35,28 @@ class FileSharer {
     private func presentShareSheet(for url: URL) {
         let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootVC = windowScene.windows.first?.rootViewController {
-            
+        if let topVC = getTopViewController() {
             // For iPad compatibility
             if let popover = activityVC.popoverPresentationController {
-                popover.sourceView = rootVC.view
-                popover.sourceRect = CGRect(x: rootVC.view.bounds.midX, y: rootVC.view.bounds.midY, width: 0, height: 0)
+                popover.sourceView = topVC.view
+                popover.sourceRect = CGRect(x: topVC.view.bounds.midX, y: topVC.view.bounds.midY, width: 0, height: 0)
                 popover.permittedArrowDirections = []
             }
             
-            rootVC.present(activityVC, animated: true)
+            topVC.present(activityVC, animated: true)
         }
+    }
+    
+    private func getTopViewController() -> UIViewController? {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first(where: { $0.isKeyWindow }) ?? windowScene.windows.first else {
+            return nil
+        }
+        
+        var topVC = window.rootViewController
+        while let presentedVC = topVC?.presentedViewController {
+            topVC = presentedVC
+        }
+        return topVC
     }
 }

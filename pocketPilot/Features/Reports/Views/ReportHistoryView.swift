@@ -10,6 +10,7 @@ import SwiftUI
 struct ReportHistoryView: View {
     @State private var viewModel = ReportViewModel()
     @Environment(\.dismiss) var dismiss
+    @State private var downloadingReportID: String?
     
     var body: some View {
         NavigationStack {
@@ -27,12 +28,14 @@ struct ReportHistoryView: View {
                 } else {
                     List {
                         ForEach(viewModel.reports) { report in
-                            ReportRow(report: report) {
+                            ReportRow(report: report, isDownloading: downloadingReportID == report.filename) {
                                 Task {
+                                    downloadingReportID = report.filename
                                     await FileSharer.shared.downloadAndShare(
                                         filename: report.filename,
                                         endpoint: .downloadReport(report.filename)
                                     )
+                                    downloadingReportID = nil
                                 }
                             }
                         }
@@ -64,6 +67,7 @@ struct ReportHistoryView: View {
 
 struct ReportRow: View {
     let report: ReportItem
+    let isDownloading: Bool
     let onShare: () -> Void
     
     var body: some View {
@@ -81,7 +85,7 @@ struct ReportRow: View {
                         .font(.title3)
                 }
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(report.filename)
                         .font(.subheadline)
                         .fontWeight(.medium)
@@ -97,11 +101,17 @@ struct ReportRow: View {
                 
                 Spacer()
                 
-                Image(systemName: "square.and.arrow.up")
-                    .foregroundStyle(.blue)
+                if isDownloading {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                } else {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundStyle(.blue)
+                }
             }
             .padding(.vertical, 4)
         }
+        .disabled(isDownloading)
     }
     
     private var isCSV: Bool {

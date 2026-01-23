@@ -14,6 +14,7 @@ class ProfileViewModel {
     var user: User?
     var isLoading: Bool = false
     var errorMessage: String?
+    var profileVersion: Int = 0
     
     private let authManager = AuthManager.shared
     private let apiClient = APIClient.shared
@@ -86,8 +87,16 @@ class ProfileViewModel {
             
             let decoder = JSONDecoder.api
             
-            // Try to decode updated user
-            if let response = try? decoder.decode(MainActorAPIResponse<User>.self, from: data),
+            // Try to decode updated user/tokens
+            if let response = try? decoder.decode(MainActorAPIResponse<AuthResponse>.self, from: data),
+                let details = response.data {
+                 print("DEBUG: [ProfilePicture] Decoded AuthResponse with tokens. Saving...")
+                 try? KeychainManager.shared.saveTokens(accessToken: details.accessToken, refreshToken: details.refreshToken)
+                 if let updatedUser = details.user {
+                     user = updatedUser
+                     AuthManager.shared.currentUser = updatedUser
+                 }
+            } else if let response = try? decoder.decode(MainActorAPIResponse<User>.self, from: data),
                let updatedUser = response.data {
                 print("DEBUG: [ProfilePicture] Decoded user with URL: \(updatedUser.profilePictureURL ?? "nil")")
                 user = updatedUser

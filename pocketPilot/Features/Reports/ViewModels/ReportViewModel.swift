@@ -30,12 +30,21 @@ class ReportViewModel {
             let data = try await apiClient.requestData(.listReports)
             let decoder = JSONDecoder.api
             
+            // Debug logging
+            if let raw = String(data: data, encoding: .utf8) {
+                print("DEBUG: [Reports] Raw list response: \(raw)")
+            }
+            
             if let response = try? decoder.decode([ReportItem].self, from: data) {
                 reports = response
             } else if let response = try? decoder.decode(MainActorAPIResponse<[ReportItem]>.self, from: data), let dataObj = response.data {
                 reports = dataObj
             } else if let response = try? decoder.decode(ReportListResponse.self, from: data) {
                 reports = response.reports
+            } else if let response = try? decoder.decode(MainActorAPIResponse<ReportListResponse>.self, from: data), let dataObj = response.data {
+                reports = dataObj.reports
+            } else {
+                print("DEBUG: [Reports] Failed to decode reports list")
             }
         } catch {
             print("DEBUG: [Reports] Failed to fetch reporting history: \(error)")

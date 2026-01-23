@@ -19,6 +19,10 @@ class AuthManager {
     var isLoading: Bool = false
     var errorMessage: String?
     
+    // Welcome message properties
+    var welcomeMessage: String?
+    var showWelcomeMessage: Bool = false
+    
     private let keychainManager = KeychainManager.shared
     private let apiClient = APIClient.shared
     
@@ -63,24 +67,20 @@ class AuthManager {
                 
                 if let details = authResponse {
                     print("DEBUG: Received tokens. Attempting to save to keychain...")
-                    // SAVE TOKENS (don't use try? - we need to know if this fails)
+                    // SAVE TOKENS
                     do {
                         try keychainManager.saveTokens(
                             accessToken: details.accessToken,
                             refreshToken: details.refreshToken
                         )
                         
-                        // VERIFY STORAGE
-                        if let _ = keychainManager.getAccessToken() {
-                            print("DEBUG: Tokens saved and verified successfully.")
-                        } else {
-                            print("DEBUG: CRITICAL - Tokens were 'saved' but getAccessToken returned nil immediately after!")
-                            throw APIError.unknown("Keychain persistence failure")
-                        }
-                        
                         if let user = details.user {
                             try? keychainManager.saveUserID(user.id)
                             currentUser = user
+                            
+                            // Set welcome message
+                            welcomeMessage = "Welcome back \(user.firstName ?? "") 😁 to PocketPilot"
+                            showWelcomeMessage = true
                         }
                         
                         isAuthenticated = true
@@ -92,7 +92,7 @@ class AuthManager {
                     }
                 } else {
                     let rawString = String(data: data, encoding: .utf8) ?? "binary"
-                    print("DEBUG: Login succeeded but AuthResponse decoding failed. Possible case mismatch or structure change. Raw data: \(rawString)")
+                    print("DEBUG: Login succeeded but AuthResponse decoding failed. Raw data: \(rawString)")
                     errorMessage = "Session data format mismatch"
                     throw APIError.unknown("Decoding error")
                 }
@@ -101,7 +101,6 @@ class AuthManager {
                  errorMessage = error.message
                  throw APIError.serverError(0, error.message)
             } else {
-                 // Final fallback: if it's 2xx and we are here, just let it pass
                  isAuthenticated = true
                  WebSocketManager.shared.connect()
             }
@@ -154,23 +153,19 @@ class AuthManager {
                             refreshToken: details.refreshToken
                         )
                         
-                        // VERIFY STORAGE
-                        if let _ = keychainManager.getAccessToken() {
-                            print("DEBUG: Signup tokens saved and verified.")
-                        } else {
-                            print("DEBUG: CRITICAL - Signup tokens lost immediately after saving!")
-                            throw APIError.unknown("Keychain persistence failure")
-                        }
-                        
                         if let user = details.user {
                             try? keychainManager.saveUserID(user.id)
                             currentUser = user
+                            
+                            // Set welcome message for signup
+                            welcomeMessage = "Welcome to PocketPilot, \(user.firstName ?? "")..."
+                            showWelcomeMessage = true
                         }
                         
                         isAuthenticated = true
                         WebSocketManager.shared.connect()
                     } catch {
-                        print("DEBUG: FAILED to save or verify tokens after signup: \(error)")
+                        print("DEBUG: FAILED to save tokens after signup: \(error)")
                         errorMessage = "Security storage failure"
                         throw APIError.unknown("Keychain error")
                     }
@@ -275,7 +270,14 @@ class AuthManager {
             let decoder = JSONDecoder.api
             var decodedUser: User?
             
-            if let response = try? decoder.decode(MainActorAPIResponse<User>.self, from: data) {
+            // Try to see if backend returned tokens as well (essential for keeping session alive if tokens rotate)
+            if let response = try? decoder.decode(MainActorAPIResponse<AuthResponse>.self, from: data), let details = response.data {
+                decodedUser = details.user
+                if !details.accessToken.isEmpty {
+                    print("DEBUG: Received new tokens after profile upload. Saving...")
+                    try? keychainManager.saveTokens(accessToken: details.accessToken, refreshToken: details.refreshToken)
+                }
+            } else if let response = try? decoder.decode(MainActorAPIResponse<User>.self, from: data) {
                 if response.success, let user = response.data {
                     decodedUser = user
                 } else if let error = response.error {
@@ -302,7 +304,14 @@ class AuthManager {
             let decoder = JSONDecoder.api
             var decodedUser: User?
             
-            if let response = try? decoder.decode(MainActorAPIResponse<User>.self, from: data) {
+            // Try to see if backend returned tokens as well
+            if let response = try? decoder.decode(MainActorAPIResponse<AuthResponse>.self, from: data), let details = response.data {
+                decodedUser = details.user
+                if !details.accessToken.isEmpty {
+                    print("DEBUG: Received new tokens after profile update. Saving...")
+                    try? keychainManager.saveTokens(accessToken: details.accessToken, refreshToken: details.refreshToken)
+                }
+            } else if let response = try? decoder.decode(MainActorAPIResponse<User>.self, from: data) {
                 if response.success, let user = response.data {
                     decodedUser = user
                 } else if let error = response.error {
@@ -391,12 +400,16 @@ class AuthManager {
     private func checkAuthStatus() {
         if let token = keychainManager.getAccessToken(),
            !token.isEmpty {
+            print("DEBUG: [Auth] Found existing session on boot. Restoring...")
             isAuthenticated = true
             
             // Fetch current user info
             Task {
+                print("DEBUG: [Auth] Fetching profile for restored session...")
                 try? await getCurrentUser()
             }
+        } else {
+            print("DEBUG: [Auth] No session found on boot.")
         }
     }
 }

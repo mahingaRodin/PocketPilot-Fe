@@ -10,8 +10,8 @@ import Foundation
 struct ReportItem: Codable, Identifiable {
     var id: String { filename }
     let filename: String
-    let downloadUrl: String
-    let createdAt: Date? // Some endpoints might return this
+    let downloadUrl: String?
+    let createdAt: Date? 
     
     enum CodingKeys: String, CodingKey {
         case filename

@@ -10,6 +10,7 @@ import SwiftUI
 struct NotificationListView: View {
     @State private var viewModel = NotificationViewModel()
     @Environment(\.dismiss) var dismiss
+    @State private var showClearAlert = false
     
     var body: some View {
         NavigationStack {
@@ -38,6 +39,12 @@ struct NotificationListView: View {
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                         }
+                        .onDelete { indexSet in
+                            for index in indexSet {
+                                let notification = viewModel.notifications[index]
+                                Task { await viewModel.deleteNotification(notificationId: notification.id) }
+                            }
+                        }
                     }
                     .listStyle(.plain)
                     .refreshable {
@@ -51,10 +58,11 @@ struct NotificationListView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
                         Button {
-                            viewModel.clearAll()
+                            showClearAlert = true
                         } label: {
                             Text("Clear")
                         }
+                        .disabled(viewModel.notifications.isEmpty || viewModel.isLoading)
                         
                         Button("Done") { dismiss() }
                     }
@@ -88,6 +96,25 @@ struct NotificationListView: View {
             }
             .task {
                 await viewModel.fetchNotifications()
+            }
+            .alert("Clear All Notifications", isPresented: $showClearAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Clear All", role: .destructive) {
+                    Task { await viewModel.clearAll() }
+                }
+            } message: {
+                Text("Are you sure you want to permanently delete all notifications? This action cannot be undone.")
+            }
+            .alert("Error", isPresented: $viewModel.showError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(viewModel.errorMessage ?? "An unknown error occurred")
+            }
+            // Success alert (Optional, maybe toast is better but let's stick to standard for now or just trust the empty state)
+            .alert("Success", isPresented: $viewModel.showSuccess) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(viewModel.successMessage ?? "Action completed")
             }
         }
     }

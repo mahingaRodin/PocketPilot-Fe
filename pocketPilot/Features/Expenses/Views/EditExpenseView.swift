@@ -197,6 +197,13 @@ struct EditExpenseView: View {
             // Reload the expense to get the updated receipt URL (backend regenerates on update)
             await viewModel.loadExpense()
             onUpdate()
+            
+            // Trigger budget threshold check
+            Task {
+                let budgetVM = BudgetViewModel()
+                await budgetVM.checkThresholds()
+            }
+            
             withAnimation { showSuccess = true }
             try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
             dismiss()

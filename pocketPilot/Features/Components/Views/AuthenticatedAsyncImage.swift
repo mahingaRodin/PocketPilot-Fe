@@ -46,10 +46,17 @@ struct AuthenticatedAsyncImage<Content: View, Placeholder: View>: View {
         .onAppear {
             loadImage()
         }
+        .onChange(of: url) { oldValue, newValue in
+            if newValue != oldValue {
+                self.image = nil
+                loadImage()
+            }
+        }
     }
     
     private func loadImage() {
-        guard let url = url, image == nil, !isLoading else { return }
+        guard let url = url, !isLoading else { return }
+        if image != nil && url.absoluteString.contains("v=") == false { return } 
         
         isLoading = true
         error = nil

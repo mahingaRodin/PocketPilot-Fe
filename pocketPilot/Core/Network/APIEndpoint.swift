@@ -59,6 +59,8 @@ enum APIEndpoint: Sendable {
     case registerPushToken
     case testBudgetAlert
     case testDailySummary
+    case deleteNotification(String)
+    case deleteAllNotifications
     
     // Report/Export endpoints
     case exportExpenses
@@ -92,13 +94,13 @@ enum APIEndpoint: Sendable {
         case .getExpenses:
             return "/expenses"
         case .getExpense(let id):
-            return "/expenses/\(id)"
+            return "/expenses/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .createExpense:
             return "/expenses"
         case .updateExpense(let id):
-            return "/expenses/\(id)"
+            return "/expenses/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .deleteExpense(let id):
-            return "/expenses/\(id)"
+            return "/expenses/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .getDashboard:
             return "/dashboard"
         case .scanReceipt:
@@ -106,13 +108,13 @@ enum APIEndpoint: Sendable {
         case .uploadReceipt:
             return "/receipts/upload"
         case .generateReceipt(let id):
-            return "/receipts/generate/\(id)"
+            return "/receipts/generate/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .viewReceipt(let id):
-            return "/receipts/\(id)/view"
+            return "/receipts/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/view"
         case .uploadProfilePicture(let id), .updateProfilePicture(let id), .getProfilePicture(let id):
-            return "/user/profile-picture/\(id)"
+            return "/user/profile-picture/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .deleteProfilePicture(let id):
-            return "/user/profile-picture/\(id)"
+            return "/user/profile-picture/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .getBudgets, .createBudget:
             return "/budgets"
         case .getBudgetSummary:
@@ -120,9 +122,9 @@ enum APIEndpoint: Sendable {
         case .getBudgetAlerts:
             return "/budgets/alerts"
         case .markAlertRead(let id):
-            return "/budgets/alerts/\(id)/read"
+            return "/budgets/alerts/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/read"
         case .updateBudget(let id), .deleteBudget(let id):
-            return "/budgets/\(id)"
+            return "/budgets/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .getNotifications:
             return "/notifications"
         case .getUnreadNotificationCount:
@@ -130,7 +132,7 @@ enum APIEndpoint: Sendable {
         case .updateNotificationPreferences:
             return "/notifications/preferences"
         case .markNotificationRead(let id):
-            return "/notifications/\(id)/read"
+            return "/notifications/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/read"
         case .markAllNotificationsRead:
             return "/notifications/read-all"
         case .registerPushToken:
@@ -139,13 +141,17 @@ enum APIEndpoint: Sendable {
             return "/notifications/test/budget-alert"
         case .testDailySummary:
             return "/notifications/test/daily-summary"
+        case .deleteNotification(let id):
+            return "/notifications/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
+        case .deleteAllNotifications:
+            return "/notifications/clear-all"
             
         case .exportExpenses:
             return "/reports/export"
         case .listReports:
             return "/reports/list"
         case .downloadReport(let filename):
-            return "/reports/download/\(filename)"
+            return "/reports/download/\(filename.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? filename)"
         }
     }
     
@@ -179,7 +185,7 @@ enum APIEndpoint: Sendable {
             return .post
         case .updateProfile, .updateExpense, .updateProfilePicture(_), .markAlertRead(_), .updateBudget(_), .updateNotificationPreferences, .markNotificationRead(_), .markAllNotificationsRead:
             return .put
-        case .deleteExpense, .deleteProfilePicture(_), .deleteBudget(_):
+        case .deleteExpense, .deleteProfilePicture(_), .deleteBudget(_), .deleteNotification(_), .deleteAllNotifications:
             return .delete
         default:
             return .get
