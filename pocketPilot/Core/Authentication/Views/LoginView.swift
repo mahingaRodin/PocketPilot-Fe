@@ -51,19 +51,12 @@ struct LoginView: View {
                         
                         // MARK: - Logo & Title (Staggered)
                         VStack(spacing: 16) {
-                            ZStack {
-                                Circle()
-                                    .fill(.white.opacity(0.1))
-                                    .frame(width: 100, height: 100)
-                                    .blur(radius: 5)
-                                
-                                Image(systemName: "creditcard.circle.fill")
-                                    .font(.system(size: 80))
-                                    .foregroundStyle(
-                                        LinearGradient(colors: [.white, .white.opacity(0.7)], startPoint: .top, endPoint: .bottom)
-                                    )
-                                    .shadow(color: .blue.opacity(0.5), radius: 20, x: 0, y: 10)
-                            }
+                                Image("AppLogo")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 120, height: 120)
+                                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                                    .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
                             .scaleEffect(appearScale)
                             .opacity(appearOpacity)
                             .animation(.springy.delay(0.1), value: appearScale)

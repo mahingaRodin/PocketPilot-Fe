@@ -117,6 +117,7 @@ class ProfileViewModel {
         }
         
         isLoading = false
+        profileVersion += 1
         print("DEBUG: [ProfilePicture] Upload complete. Current user URL: \(user?.profilePictureURL ?? "nil")")
     }
     
@@ -152,6 +153,7 @@ class ProfileViewModel {
         }
         
         isLoading = false
+        profileVersion += 1
     }
     
     func logout() {

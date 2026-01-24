@@ -38,7 +38,7 @@ struct ProfileView: View {
                                         
                                         if let _ = user.profilePictureURL {
                                             let timestamp = user.updatedAt?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
-                                            let fullURL = URL(string: Constants.API.baseURL + APIEndpoint.getProfilePicture(user.id).path + "?v=\(timestamp)")
+                                            let fullURL = URL(string: Constants.API.baseURL + APIEndpoint.getProfilePicture(user.id).path + "?v=\(timestamp)-\(viewModel.profileVersion)")
                                             
                                             AuthenticatedAsyncImage(url: fullURL) { image in
                                                 image.resizable()
@@ -110,6 +110,21 @@ struct ProfileView: View {
                             }
                         }
                         .padding(.horizontal)
+                        
+                        // Footer
+                        VStack(spacing: 8) {
+                            Image("AppLogo")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 48, height: 48)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .opacity(0.8)
+                            
+                            Text("PocketPilot v1.0.0")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.top, 24)
                         
                         Spacer()
                     }
