@@ -43,7 +43,10 @@ class BudgetViewModel {
             if let result = decodedSummary {
                 summary = result
                 budgets = result.budgets
-                alerts = result.alerts
+                
+                // Filter alerts to only include those for categories the user actually has budgets for
+                let activeBudgetIds = Set(result.budgets.map { $0.budget.id })
+                alerts = result.alerts.filter { activeBudgetIds.contains($0.budgetId) }
             } else {
                 print("DEBUG: [Budget] Failed to decode budget summary")
                 // For debugging, print raw response
@@ -171,7 +174,8 @@ class BudgetViewModel {
         await loadBudgetSummary()
         
         // Trigger backend logic to generate notifications if any threshold is exceeded
-        _ = try? await apiClient.requestData(.testBudgetAlert, method: .post)
+        // NOTE: Commented out to prevent junk "Food" alerts when categories don't match
+        // _ = try? await apiClient.requestData(.testBudgetAlert, method: .post)
         
         // Final refresh to see the new alerts in UI if any
         await loadBudgetSummary()

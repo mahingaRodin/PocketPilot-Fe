@@ -80,16 +80,88 @@ struct ProfileView: View {
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
                                 }
-                            } else {
-                                ProgressView()
+                if showPhotoOptions {
+                    HStack(spacing: 24) {
+                        Button {
+                            imageSourceType = .camera
+                            showImagePicker = true
+                            showPhotoOptions = false
+                        } label: {
+                            VStack(spacing: 8) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.blue.opacity(0.1))
+                                        .frame(width: 50, height: 50)
+                                    Image(systemName: "camera.fill")
+                                        .font(.system(size: 20))
+                                        .foregroundStyle(.blue)
+                                }
+                                Text("Camera")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.primary)
                             }
                         }
-                        .padding(.vertical, 32)
-                        .frame(maxWidth: .infinity)
-                        .background(Color(.systemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 32))
-                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
-                        .padding(.horizontal)
+                        
+                        Button {
+                            imageSourceType = .photoLibrary
+                            showImagePicker = true
+                            showPhotoOptions = false
+                        } label: {
+                            VStack(spacing: 8) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.purple.opacity(0.1))
+                                        .frame(width: 50, height: 50)
+                                    Image(systemName: "photo.fill")
+                                        .font(.system(size: 20))
+                                        .foregroundStyle(.purple)
+                                }
+                                Text("Library")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.primary)
+                            }
+                        }
+                        
+                        if viewModel.currentUser?.profilePictureURL != nil {
+                            Button {
+                                Task {
+                                    await viewModel.deleteProfilePicture()
+                                    showPhotoOptions = false
+                                }
+                            } label: {
+                                VStack(spacing: 8) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.red.opacity(0.1))
+                                            .frame(width: 50, height: 50)
+                                        Image(systemName: "trash.fill")
+                                            .font(.system(size: 20))
+                                            .foregroundStyle(.red)
+                                    }
+                                    Text("Remove")
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                        .foregroundStyle(.primary)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.top, 8)
+                    .transition(.scale.combined(with: .opacity))
+                }
+            } else {
+                ProgressView()
+            }
+        }
+        .padding(.vertical, 32)
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 32))
+        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+        .padding(.horizontal)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: showPhotoOptions)
                         
                         // Menu Section
                         VStack(spacing: 16) {
@@ -165,24 +237,7 @@ struct ProfileView: View {
                     }
                 }
             }
-            .confirmationDialog("Profile Picture", isPresented: $showPhotoOptions, titleVisibility: .visible) {
-                Button("Take Photo") {
-                    imageSourceType = .camera
-                    showImagePicker = true
-                }
-                Button("Choose from Library") {
-                    imageSourceType = .photoLibrary
-                    showImagePicker = true
-                }
-                if viewModel.currentUser?.profilePictureURL != nil {
-                    Button("Remove Photo", role: .destructive) {
-                        Task {
-                            await viewModel.deleteProfilePicture()
-                        }
-                    }
-                }
-                Button("Cancel", role: .cancel) { }
-            }
+
         }
     }
     

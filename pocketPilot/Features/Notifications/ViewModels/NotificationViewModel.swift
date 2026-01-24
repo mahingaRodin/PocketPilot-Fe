@@ -52,10 +52,34 @@ class NotificationViewModel {
             }
             
             if let result = decodedResponse {
+                // Fetch active budgets to filter notifications
+                let budgetData = try? await apiClient.requestData(.getBudgetSummary)
+                let budgetDecoder = JSONDecoder.api
+                var activeCategories = Set<String>()
+                
+                if let data = budgetData {
+                    if let bResponse = try? budgetDecoder.decode(MainActorAPIResponse<BudgetSummary>.self, from: data) {
+                        activeCategories = Set(bResponse.data?.budgets.map { $0.budget.category.lowercased() } ?? [])
+                    } else if let bSummary = try? budgetDecoder.decode(BudgetSummary.self, from: data) {
+                        activeCategories = Set(bSummary.budgets.map { $0.budget.category.lowercased() } ?? [])
+                    }
+                }
+                
+                // Filter notifications: 
+                // Keep if it's not a budget alert OR if the category is in active budgets
+                let filteredNotifications = result.notifications.filter { notification in
+                    if notification.type == "budget_alert" {
+                        let cat = notification.category.lowercased()
+                        // Keep if category is active OR if it's a general notification
+                        return activeCategories.contains(cat) || cat.isEmpty
+                    }
+                    return true
+                }
+                
                 if page == 1 {
-                    notifications = result.notifications
+                    notifications = filteredNotifications
                 } else {
-                    notifications.append(contentsOf: result.notifications)
+                    notifications.append(contentsOf: filteredNotifications)
                 }
             } else {
                 print("DEBUG: [Notifications] Failed to decode notifications response")
