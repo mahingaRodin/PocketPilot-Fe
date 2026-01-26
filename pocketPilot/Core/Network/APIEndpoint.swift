@@ -68,6 +68,18 @@ enum APIEndpoint: Sendable {
     case listReports
     case downloadReport(String)
     
+    // Chat endpoints
+    case chatAsk
+    case chatHistory
+    case chatClearHistory
+    
+    // Gamification endpoints
+    case achievements
+    case checkAchievements
+    case gamificationProfile
+    case streaks
+    case leaderboard
+    
     var path: String {
         switch self {
         case .login:
@@ -155,6 +167,20 @@ enum APIEndpoint: Sendable {
             return "/reports/list"
         case .downloadReport(let filename):
             return "/reports/download/\(filename.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? filename)"
+        case .chatAsk:
+            return "/chat/ask"
+        case .chatHistory, .chatClearHistory:
+            return "/chat/history"
+        case .achievements:
+            return "/gamification/achievements"
+        case .checkAchievements:
+            return "/gamification/achievements/check"
+        case .gamificationProfile:
+            return "/gamification/profile"
+        case .streaks:
+            return "/gamification/streaks"
+        case .leaderboard:
+            return "/gamification/leaderboard"
         }
     }
     
@@ -184,11 +210,11 @@ enum APIEndpoint: Sendable {
     
     var method: HTTPMethod {
         switch self {
-        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt, .uploadProfilePicture(_), .createBudget, .registerPushToken, .testBudgetAlert, .testDailySummary, .exportExpenses:
+        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt, .uploadProfilePicture(_), .createBudget, .registerPushToken, .testBudgetAlert, .testDailySummary, .exportExpenses, .chatAsk, .checkAchievements:
             return .post
         case .updateProfile, .updateExpense, .updateProfilePicture(_), .markAlertRead(_), .updateBudget(_), .updateNotificationPreferences, .markNotificationRead(_), .markAllNotificationsRead:
             return .put
-        case .deleteExpense, .deleteProfilePicture(_), .deleteBudget(_), .deleteNotification(_), .deleteAllNotifications:
+        case .deleteExpense, .deleteProfilePicture(_), .deleteBudget(_), .deleteNotification(_), .deleteAllNotifications, .chatClearHistory:
             return .delete
         default:
             return .get

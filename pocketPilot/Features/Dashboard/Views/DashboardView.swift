@@ -12,6 +12,7 @@ struct DashboardView: View {
     @State private var notificationManager = NotificationManager.shared
     @State private var appearOpacity = 0.0
     @State private var appearOffset: CGFloat = 20
+    @State private var gamificationViewModel = GamificationViewModel()
     @State private var showScanner = false
     @State private var showNotifications = false
     
@@ -117,6 +118,27 @@ struct DashboardView: View {
                                 }
                                 .padding(.vertical, 8)
                             }
+                            
+                            // Achievement Widgets
+                            VStack(spacing: 20) {
+                                if let profile = gamificationViewModel.profile {
+                                    StreakWidget(
+                                        currentStreak: profile.currentStreak,
+                                        longestStreak: profile.longestStreak
+                                    )
+                                    .padding(.horizontal)
+                                    .offset(y: appearOffset)
+                                    .opacity(appearOpacity)
+                                    .animation(.staggered(index: 5), value: appearOpacity)
+                                }
+                                
+                                RecentAchievementsRow(achievements: gamificationViewModel.unlockedAchievements)
+                                    .padding(.horizontal)
+                                    .offset(y: appearOffset)
+                                    .opacity(appearOpacity)
+                                    .animation(.staggered(index: 6), value: appearOpacity)
+                            }
+                            .padding(.bottom, 24)
                         }
                     }
                     .padding(.vertical)
@@ -124,11 +146,14 @@ struct DashboardView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color(.systemGroupedBackground))
                 
-                // Floating Action Button
+                // Floating Action Buttons
                 VStack {
                     Spacer()
-                    HStack {
+                    HStack(spacing: 20) {
                         Spacer()
+                        
+                        FloatingChatButton()
+                        
                         Button {
                             showScanner = true
                         } label: {
@@ -184,6 +209,8 @@ struct DashboardView: View {
             .task {
                 await viewModel.loadDashboard()
                 await viewModel.loadTrendData()
+                await gamificationViewModel.loadAchievements()
+                await gamificationViewModel.loadProfile()
                 await notificationManager.fetchUnreadCount()
                 withAnimation(.gentle) {
                     appearOpacity = 1.0
@@ -254,4 +281,128 @@ struct CategoryBreakdownCard: View {
 
 #Preview {
     DashboardView()
+}
+
+// MARK: - Gamification Widgets
+struct StreakWidget: View {
+    let currentStreak: Int
+    let longestStreak: Int
+    
+    var body: some View {
+        HStack(spacing: 20) {
+            VStack(spacing: 8) {
+                HStack(spacing: 4) {
+                    Image(systemName: "flame.fill")
+                        .font(.title)
+                        .foregroundStyle(.orange)
+                    
+                    Text("\(currentStreak)")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                }
+                
+                Text("Day Streak")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Divider()
+                .frame(height: 50)
+            
+            VStack(spacing: 8) {
+                HStack(spacing: 4) {
+                    Image(systemName: "crown.fill")
+                        .font(.title3)
+                        .foregroundStyle(.yellow)
+                    
+                    Text("\(longestStreak)")
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                }
+                
+                Text("Best Streak")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .shadow(color: .black.opacity(0.04), radius: 10, x: 0, y: 5)
+    }
+}
+
+struct MiniAchievementBadge: View {
+    let achievement: Achievement
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [.yellow, .orange],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 48, height: 48)
+                
+                Image(systemName: achievement.icon)
+                    .font(.system(size: 20))
+                    .foregroundStyle(.white)
+            }
+            .shadow(color: .orange.opacity(0.3), radius: 5, x: 0, y: 2)
+            
+            Text(achievement.name)
+                .font(.system(size: 10, weight: .bold))
+                .lineLimit(1)
+                .frame(width: 70)
+        }
+    }
+}
+
+struct RecentAchievementsRow: View {
+    let achievements: [Achievement]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "trophy.fill")
+                    .foregroundStyle(.yellow)
+                Text("Recent Achievements")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                Spacer()
+            }
+            
+            if achievements.isEmpty {
+                HStack {
+                    Image(systemName: "star.bubble")
+                        .font(.title3)
+                        .foregroundColor(.blue)
+                    Text("No achievements yet. Keep tracking to unlock!")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue.opacity(0.05))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 16) {
+                        ForEach(achievements.prefix(5)) { achievement in
+                            MiniAchievementBadge(achievement: achievement)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .shadow(color: .black.opacity(0.04), radius: 10, x: 0, y: 5)
+    }
 }

@@ -90,11 +90,17 @@ struct MainTabView: View {
                 }
                 .tag(2)
             
+            AchievementsView()
+                .tabItem {
+                    Label("Achievements", systemImage: "trophy.fill")
+                }
+                .tag(3)
+            
             ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
-                .tag(3)
+                .tag(4)
         }
     }
 }
