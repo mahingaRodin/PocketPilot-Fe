@@ -34,6 +34,7 @@ enum APIEndpoint: Sendable {
     case uploadReceipt
     case generateReceipt(String)
     case viewReceipt(String)
+    case downloadReceipt(String)
     
     // Profile picture endpoints
     case uploadProfilePicture(String)
@@ -111,6 +112,8 @@ enum APIEndpoint: Sendable {
             return "/receipts/generate/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .viewReceipt(let id):
             return "/receipts/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/view"
+        case .downloadReceipt(let id):
+            return "/receipts/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/download"
         case .uploadProfilePicture(let id), .updateProfilePicture(let id), .getProfilePicture(let id):
             return "/user/profile-picture/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .deleteProfilePicture(let id):

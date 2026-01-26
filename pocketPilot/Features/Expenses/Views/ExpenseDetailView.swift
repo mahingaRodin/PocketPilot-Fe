@@ -13,6 +13,7 @@ struct ExpenseDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showEditSheet = false
     @State private var showDeleteAlert = false
+    @State private var showShareSheet = false
     
     init(expenseId: String) {
         self.expenseId = expenseId
@@ -83,19 +84,37 @@ struct ExpenseDetailView: View {
                                 
                                 if let receiptURL = expense.receiptURL, !receiptURL.isEmpty {
                                     let viewURL = URL(string: "\(Constants.API.baseURL)/receipts/\(expense.id)/view")!
-                                    NavigationLink(destination: ReceiptPreviewView(url: viewURL)) {
-                                        HStack {
-                                            Image(systemName: "doc.text.fill")
-                                                .foregroundColor(.blue)
-                                            Text("View Receipt")
-                                                .fontWeight(.medium)
-                                            Spacer()
-                                            Image(systemName: "chevron.right")
-                                                .foregroundColor(.secondary)
+                                    HStack {
+                                        NavigationLink(destination: ReceiptPreviewView(url: viewURL)) {
+                                            HStack {
+                                                Image(systemName: "doc.text.fill")
+                                                    .foregroundColor(.blue)
+                                                Text("View Receipt")
+                                                    .fontWeight(.medium)
+                                                Spacer()
+                                                Image(systemName: "chevron.right")
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            .padding()
+                                            .background(Color(.systemBackground))
+                                            .clipShape(RoundedRectangle(cornerRadius: 16))
                                         }
-                                        .padding()
-                                        .background(Color(.systemBackground))
-                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                        
+                                        Button(action: {
+                                            Task {
+                                                await viewModel.downloadReceipt()
+                                                if viewModel.downloadedFileURL != nil {
+                                                    showShareSheet = true
+                                                }
+                                            }
+                                        }) {
+                                            Image(systemName: "square.and.arrow.down")
+                                                .font(.system(size: 20, weight: .semibold))
+                                                .foregroundColor(.white)
+                                                .frame(width: 50, height: 50)
+                                                .background(Color.blue)
+                                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                        }
                                     }
                                     .padding(.horizontal)
                                 } else {
@@ -163,6 +182,29 @@ struct ExpenseDetailView: View {
                         .padding(.vertical)
                     }
                 }
+                
+                // Success Toast
+                if viewModel.showDownloadSuccess {
+                    VStack {
+                        HStack(spacing: 12) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.white)
+                            Text("Receipt downloaded successfully!")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 14)
+                        .background(Color.green)
+                        .clipShape(Capsule())
+                        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                        .padding(.top, 40)
+                        
+                        Spacer()
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(1)
+                }
             }
             .navigationTitle("Expense")
             .navigationBarTitleDisplayMode(.inline)
@@ -191,6 +233,12 @@ struct ExpenseDetailView: View {
             } message: {
                 Text("Are you sure you want to delete this expense? This action cannot be undone.")
             }
+            .sheet(isPresented: $showShareSheet) {
+                if let url = viewModel.downloadedFileURL {
+                    ShareSheet(items: [url])
+                }
+            }
+            .animation(.spring(), value: viewModel.showDownloadSuccess)
             .task {
                 await viewModel.loadExpense()
             }
@@ -243,4 +291,15 @@ struct DetailRow: View {
 
 #Preview {
     ExpenseDetailView(expenseId: "1")
+}
+
+// MARK: - ShareSheet Helper
+struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

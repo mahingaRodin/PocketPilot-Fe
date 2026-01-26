@@ -15,6 +15,8 @@ class ExpenseDetailViewModel {
     var expense: Expense?
     var isLoading: Bool = false
     var errorMessage: String?
+    var downloadedFileURL: URL?
+    var showDownloadSuccess: Bool = false
     
     private let apiClient = APIClient.shared
     private let expenseId: String
@@ -197,6 +199,36 @@ class ExpenseDetailViewModel {
         } catch {
             print("DEBUG: [Receipt] Error: \(error)")
             errorMessage = "Failed to generate receipt: \(error.localizedDescription)"
+        }
+        
+        isLoading = false
+    }
+    
+    func downloadReceipt() async {
+        guard let expense = expense else { return }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let data = try await apiClient.requestData(.downloadReceipt(expense.id))
+            
+            // Create a temporary file to save the receipt
+            let fileName = "receipt-\(expense.description.replacingOccurrences(of: " ", with: "-"))-\(expense.id.prefix(6)).html"
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+            
+            try data.write(to: tempURL)
+            
+            self.downloadedFileURL = tempURL
+            self.showDownloadSuccess = true
+            
+            // Auto hide success message after 3 seconds
+            try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
+            self.showDownloadSuccess = false
+            
+        } catch {
+            print("DEBUG: [Receipt] Download error: \(error)")
+            errorMessage = "Failed to download receipt: \(error.localizedDescription)"
         }
         
         isLoading = false

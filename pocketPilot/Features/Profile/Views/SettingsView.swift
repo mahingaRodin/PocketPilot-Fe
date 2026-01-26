@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppearanceManager.self) private var appearanceManager
     @State private var selectedCurrency: String = UserDefaultsManager.shared.getCurrency()
     @State private var showChangePassword = false
     
@@ -25,6 +26,13 @@ struct SettingsView: View {
                     }
                     .onChange(of: selectedCurrency) { _, newValue in
                         UserDefaultsManager.shared.saveCurrency(newValue)
+                    }
+                    
+                    @Bindable var appearance = appearanceManager
+                    Picker("Appearance", selection: $appearance.currentTheme) {
+                        ForEach(AppTheme.allCases) { theme in
+                            Text(theme.rawValue).tag(theme)
+                        }
                     }
                 }
                 

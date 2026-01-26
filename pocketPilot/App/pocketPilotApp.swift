@@ -11,11 +11,14 @@ import SwiftUI
 struct pocketPilotApp: App {
     
     @State private var authManager = AuthManager.shared 
+    @State private var appearanceManager = AppearanceManager.shared
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(authManager)
+                .environment(appearanceManager)
+                .preferredColorScheme(appearanceManager.currentTheme.colorScheme)
         }
     }
 }
