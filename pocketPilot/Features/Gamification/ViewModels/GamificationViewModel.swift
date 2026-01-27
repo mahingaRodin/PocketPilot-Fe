@@ -21,16 +21,39 @@ class GamificationViewModel {
             let data = try await apiClient.requestData(.achievements)
             let decoder = JSONDecoder.api
             
-            if let response = try? decoder.decode(MainActorAPIResponse<AchievementsResponse>.self, from: data) {
-                if response.success, let result = response.data {
-                    achievements = result.achievements
+            // Log raw data for debugging if needed
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("DEBUG: [Gamification] Achievements response: \(jsonString)")
+            }
+            
+            do {
+                // Try decoding wrapped in MainActorAPIResponse
+                if let response = try? decoder.decode(MainActorAPIResponse<AchievementsResponse>.self, from: data) {
+                    if response.success, let result = response.data {
+                        self.achievements = result.achievements
+                        return
+                    }
                 }
-            } else if let result = try? decoder.decode(AchievementsResponse.self, from: data) {
-                achievements = result.achievements
+                
+                // Try decoding direct AchievementsResponse (flat)
+                if let result = try? decoder.decode(AchievementsResponse.self, from: data) {
+                    self.achievements = result.achievements
+                    return
+                }
+                
+                // Try decoding direct [Achievement] array (based on user logs)
+                if let result = try? decoder.decode([Achievement].self, from: data) {
+                    self.achievements = result
+                    return
+                }
+                
+                // If we reach here, all decodings failed
+                print("DEBUG: [Gamification] Failed to decode achievements response")
+                errorMessage = "Failed to parse achievements data"
             }
         } catch {
             print("DEBUG: [Gamification] Load achievements error: \(error)")
-            errorMessage = "Failed to load achievements"
+            errorMessage = "Failed to load achievements: \(error.localizedDescription)"
         }
         
         isLoading = false
@@ -41,6 +64,11 @@ class GamificationViewModel {
         do {
             let data = try await apiClient.requestData(.gamificationProfile)
             let decoder = JSONDecoder.api
+            
+            // Log raw data for debugging if needed
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("DEBUG: [Gamification] Profile response: \(jsonString)")
+            }
             
             if let response = try? decoder.decode(MainActorAPIResponse<GamificationProfile>.self, from: data) {
                 if response.success, let result = response.data {
