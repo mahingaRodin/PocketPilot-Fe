@@ -31,12 +31,12 @@ class ProfileViewModel {
         user = authManager.currentUser
     }
     
-    func updateProfile(firstName: String, lastName: String) async throws {
+    func updateProfile(firstName: String, lastName: String, monthlyIncome: Double?) async throws {
         isLoading = true
         errorMessage = nil
         
         do {
-            try await authManager.updateProfile(firstName: firstName, lastName: lastName, profileImage: nil)
+            try await authManager.updateProfile(firstName: firstName, lastName: lastName, monthlyIncome: monthlyIncome, profileImage: nil)
             user = authManager.currentUser
         } catch {
             errorMessage = error.localizedDescription

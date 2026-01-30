@@ -23,6 +23,8 @@ struct BackendDashboardResponse: Decodable, Sendable {
     let categoryBreakdown: [CategoryBreakdown]?
     let recentExpenses: [Expense]?
     let monthlyComparison: MonthlyComparison?
+    let safeToSpend: SafeToSpend?
+    let ecoImpact: EcoImpact?
     
     // Allow decoding from a direct DashboardData object if matched
     func toDashboardData() -> DashboardData {
@@ -31,7 +33,9 @@ struct BackendDashboardResponse: Decodable, Sendable {
             monthlyExpenses: monthlyExpenses,
             categoryBreakdown: categoryBreakdown,
             recentExpenses: recentExpenses,
-            monthlyComparison: monthlyComparison
+            monthlyComparison: monthlyComparison,
+            safeToSpend: safeToSpend,
+            ecoImpact: ecoImpact
         )
     }
 }

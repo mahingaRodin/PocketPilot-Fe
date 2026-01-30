@@ -28,11 +28,17 @@ struct AchievementsResponse: Codable {
 
 struct GamificationProfile: Codable {
     let totalPoints: Int
-    let currentRank: Int
-    let achievementsCount: Int
+    let currentRank: Int?
+    let rank: Int? // Added alignment with guide
+    let achievementsCount: Int?
     let currentStreak: Int
-    let longestStreak: Int
-    let challengesCompleted: Int
+    let longestStreak: Int?
+    let challengesCompleted: Int?
     
-    var achievementsUnlocked: Int { achievementsCount }
+    enum CodingKeys: String, CodingKey {
+        case totalPoints, currentRank, rank, achievementsCount, currentStreak, longestStreak, challengesCompleted
+    }
+    
+    var displayRank: Int { rank ?? currentRank ?? 0 }
+    var achievementsUnlocked: Int { achievementsCount ?? 0 }
 }

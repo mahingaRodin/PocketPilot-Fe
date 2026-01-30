@@ -246,15 +246,16 @@ class AuthManager {
     
     // MARK: - Update Profile
     
-    func updateProfile(firstName: String?, lastName: String?, profileImage: Data?) async throws {
+    func updateProfile(firstName: String?, lastName: String?, monthlyIncome: Double?, profileImage: Data?) async throws {
         isLoading = true
         defer { isLoading = false }
         
         var parameters: [String: Any]? = nil
-        if firstName != nil || lastName != nil {
+        if firstName != nil || lastName != nil || monthlyIncome != nil {
             parameters = [:]
             if let firstName = firstName { parameters?["firstName"] = firstName }
             if let lastName = lastName { parameters?["lastName"] = lastName }
+            if let monthlyIncome = monthlyIncome { parameters?["monthlyIncome"] = monthlyIncome }
         }
         
         if let imageData = profileImage {

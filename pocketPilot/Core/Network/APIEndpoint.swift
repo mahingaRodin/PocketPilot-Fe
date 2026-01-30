@@ -21,6 +21,12 @@ enum APIEndpoint: Sendable {
     case getProfile
     case getCategories
     
+    // Squad endpoints
+    case getSquads
+    case createSquad
+    case joinSquad
+    case getSquadSettlements(String)
+    
     // Expense endpoints
     case getExpenses
     case getExpense(String)
@@ -104,6 +110,12 @@ enum APIEndpoint: Sendable {
             return "/auth/forgot-password"
         case .resetPassword:
             return "/auth/reset-password"
+        case .getSquads, .createSquad:
+            return "/squads"
+        case .joinSquad:
+            return "/squads/join"
+        case .getSquadSettlements(let id):
+            return "/squads/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/settlements"
         case .getExpenses:
             return "/expenses"
         case .getExpense(let id):
@@ -210,7 +222,7 @@ enum APIEndpoint: Sendable {
     
     var method: HTTPMethod {
         switch self {
-        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt, .uploadProfilePicture(_), .createBudget, .registerPushToken, .testBudgetAlert, .testDailySummary, .exportExpenses, .chatAsk, .checkAchievements:
+        case .login, .signup, .logout, .refreshToken, .forgotPassword, .resetPassword, .changePassword, .createExpense, .scanReceipt, .uploadReceipt, .generateReceipt, .uploadProfilePicture(_), .createBudget, .registerPushToken, .testBudgetAlert, .testDailySummary, .exportExpenses, .chatAsk, .checkAchievements, .createSquad, .joinSquad:
             return .post
         case .updateProfile, .updateExpense, .updateProfilePicture(_), .markAlertRead(_), .updateBudget(_), .updateNotificationPreferences, .markNotificationRead(_), .markAllNotificationsRead:
             return .put

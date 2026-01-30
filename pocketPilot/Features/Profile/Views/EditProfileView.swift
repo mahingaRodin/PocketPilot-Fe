@@ -11,6 +11,7 @@ struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var firstName: String = ""
     @State private var lastName: String = ""
+    @State private var monthlyIncome: String = ""
     @State private var showSuccess: Bool = false
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
@@ -64,6 +65,8 @@ struct EditProfileView: View {
                                 VStack(spacing: 16) {
                                     CustomTextField(icon: "person.fill", placeholder: "First Name", text: $firstName)
                                     CustomTextField(icon: "person.fill", placeholder: "Last Name", text: $lastName)
+                                    CustomTextField(icon: "dollarsign.circle.fill", placeholder: "Monthly Income", text: $monthlyIncome)
+                                        .keyboardType(.decimalPad)
                                 }
                             }
                             
@@ -129,6 +132,9 @@ struct EditProfileView: View {
             .onAppear {
                 firstName = authManager.currentUser?.firstName ?? ""
                 lastName = authManager.currentUser?.lastName ?? ""
+                if let income = authManager.currentUser?.monthlyIncome {
+                    monthlyIncome = String(format: "%.0f", income)
+                }
             }
         }
     }
@@ -138,7 +144,8 @@ struct EditProfileView: View {
         errorMessage = nil
         
         do {
-            try await authManager.updateProfile(firstName: firstName, lastName: lastName, profileImage: nil)
+            let income = Double(monthlyIncome)
+            try await authManager.updateProfile(firstName: firstName, lastName: lastName, monthlyIncome: income, profileImage: nil)
             withAnimation { showSuccess = true }
             try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
             dismiss()

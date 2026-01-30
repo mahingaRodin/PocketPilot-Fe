@@ -74,33 +74,39 @@ struct MainTabView: View {
         TabView(selection: $notificationManager.selectedTab) {
             DashboardView()
                 .tabItem {
-                    Label("Dashboard", systemImage: "chart.bar.fill")
+                    Label("Dash", systemImage: "chart.bar.fill")
                 }
                 .tag(0)
+            
+            SquadListView()
+                .tabItem {
+                    Label("Squads", systemImage: "person.3.fill")
+                }
+                .tag(1)
             
             ExpenseListView()
                 .tabItem {
                     Label("Expenses", systemImage: "list.bullet")
                 }
-                .tag(1)
+                .tag(2)
             
             BudgetDashboardView()
                 .tabItem {
                     Label("Budgets", systemImage: "chart.pie.fill")
                 }
-                .tag(2)
+                .tag(3)
             
             AchievementsView()
                 .tabItem {
-                    Label("Achievements", systemImage: "trophy.fill")
+                    Label("Gamify", systemImage: "trophy.fill")
                 }
-                .tag(3)
+                .tag(4)
             
             ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
-                .tag(4)
+                .tag(5)
         }
     }
 }

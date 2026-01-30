@@ -64,6 +64,24 @@ struct DashboardView: View {
                             }
                             .padding(.horizontal)
                             
+                            // Safe-to-Spend & Eco-Impact
+                            VStack(spacing: 16) {
+                                if let safeToSpend = data.safeToSpend {
+                                    SafeToSpendCard(data: safeToSpend, formatCurrency: { viewModel.formatCurrency($0) })
+                                        .offset(y: appearOffset)
+                                        .opacity(appearOpacity)
+                                        .animation(.staggered(index: 2), value: appearOpacity)
+                                }
+                                
+                                if let ecoImpact = data.ecoImpact {
+                                    EcoImpactCard(data: ecoImpact)
+                                        .offset(y: appearOffset)
+                                        .opacity(appearOpacity)
+                                        .animation(.staggered(index: 3), value: appearOpacity)
+                                }
+                            }
+                            .padding(.horizontal)
+                            
                             // Monthly Comparison
                             if let comparison = data.monthlyComparison, comparison.changePercentage != 0 {
                                 HStack {
@@ -95,7 +113,7 @@ struct DashboardView: View {
                             RecentExpensesList(expenses: data.recentExpenses ?? [])
                                 .offset(y: appearOffset)
                                 .opacity(appearOpacity)
-                                .animation(.staggered(index: 3), value: appearOpacity)
+                                .animation(.staggered(index: 4), value: appearOpacity)
                             
                             // Category Breakdown
                             if let categories = data.categoryBreakdown, !categories.isEmpty {
@@ -110,7 +128,7 @@ struct DashboardView: View {
                                                 CategoryBreakdownCard(breakdown: breakdown)
                                                     .offset(y: appearOffset)
                                                     .opacity(appearOpacity)
-                                                    .animation(.staggered(index: index + 4), value: appearOpacity)
+                                                    .animation(.staggered(index: index + 5), value: appearOpacity)
                                             }
                                         }
                                         .padding(.horizontal)
@@ -124,19 +142,32 @@ struct DashboardView: View {
                                 if let profile = gamificationViewModel.profile {
                                     StreakWidget(
                                         currentStreak: profile.currentStreak,
-                                        longestStreak: profile.longestStreak
+                                        longestStreak: profile.longestStreak ?? 0
                                     )
                                     .padding(.horizontal)
                                     .offset(y: appearOffset)
                                     .opacity(appearOpacity)
-                                    .animation(.staggered(index: 5), value: appearOpacity)
+                                    .animation(.staggered(index: 6), value: appearOpacity)
+                                    
+                                    if profile.displayRank > 0 {
+                                        StatCard(
+                                            title: "World Rank",
+                                            value: "#\(profile.displayRank)",
+                                            icon: "trophy.fill",
+                                            color: .yellow
+                                        )
+                                        .padding(.horizontal)
+                                        .offset(y: appearOffset)
+                                        .opacity(appearOpacity)
+                                        .animation(.staggered(index: 7), value: appearOpacity)
+                                    }
                                 }
                                 
                                 RecentAchievementsRow(achievements: gamificationViewModel.unlockedAchievements)
                                     .padding(.horizontal)
                                     .offset(y: appearOffset)
                                     .opacity(appearOpacity)
-                                    .animation(.staggered(index: 6), value: appearOpacity)
+                                    .animation(.staggered(index: 8), value: appearOpacity)
                             }
                             .padding(.bottom, 24)
                         }

@@ -115,7 +115,7 @@ struct ProfileHeaderCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "trophy.fill")
                             .foregroundStyle(.yellow)
-                        Text("#\(profile.currentRank)")
+                        Text("#\(profile.currentRank ?? 0)")
                             .font(.system(size: 36, weight: .bold, design: .rounded))
                     }
                     Text("Global Rank")
@@ -145,7 +145,7 @@ struct ProfileHeaderCard: View {
                 
                 StatItem(
                     icon: "crown.fill",
-                    value: "\(profile.longestStreak)",
+                    value: "\(profile.longestStreak ?? 0)",
                     label: "Best Streak",
                     color: .purple
                 )

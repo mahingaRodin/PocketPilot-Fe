@@ -21,6 +21,8 @@ struct AddExpenseView: View {
     @State private var isShowingImagePicker = false
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
+    @State private var selectedSquadID: String?
+    @State private var squadService = SquadService.shared
     
     var prefilledResult: ReceiptScanResult?
     var prefilledImage: UIImage?
@@ -126,6 +128,16 @@ struct AddExpenseView: View {
                                         TextField("", text: $notes)
                                             .foregroundColor(.primary)
                                     }
+                                }
+                                
+                                detailRow(icon: "person.3.fill", title: "Squad") {
+                                    Picker("", selection: $selectedSquadID) {
+                                        Text("None").tag(String?.none)
+                                        ForEach(squadService.squads) { squad in
+                                            Text(squad.name).tag(String?.some(squad.id.uuidString))
+                                        }
+                                    }
+                                    .pickerStyle(.menu)
                                 }
                             }
                             .background(Color(.systemBackground))
@@ -279,6 +291,10 @@ struct AddExpenseView: View {
                 if let image = prefilledImage {
                     receiptImage = image
                 }
+                
+                Task {
+                    await squadService.fetchSquads()
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -323,6 +339,7 @@ struct AddExpenseView: View {
                 "category": selectedCategory.name.lowercased(),
                 "notes": notes,
                 "date": ISO8601DateFormatter().string(from: date),
+                "squadId": selectedSquadID as Any,
                 "items": items.map { item in
                     [
                         "name": item.name,

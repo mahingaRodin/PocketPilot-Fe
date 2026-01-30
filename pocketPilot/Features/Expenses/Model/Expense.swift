@@ -11,6 +11,7 @@ struct Expense: Codable, Identifiable, Sendable {
     var id: String
     var userID: String?
     var teamID: String?
+    var squadID: String?
     var amount: Double
     var currency: String?
     var category: Category
@@ -27,6 +28,7 @@ struct Expense: Codable, Identifiable, Sendable {
         case id, amount, currency, description, date, notes, tags, items, receiptURL
         case userID = "userId"
         case teamID = "teamId"
+        case squadID = "squadId"
         case categoryString = "category"
         case categoryIcon, categoryDisplay
         case createdAt, updatedAt
@@ -39,6 +41,7 @@ struct Expense: Codable, Identifiable, Sendable {
             id = try container.decode(String.self, forKey: .id)
             userID = try container.decodeIfPresent(String.self, forKey: .userID)
             teamID = try container.decodeIfPresent(String.self, forKey: .teamID)
+            squadID = try container.decodeIfPresent(String.self, forKey: .squadID)
             amount = try container.decode(Double.self, forKey: .amount)
             currency = try container.decodeIfPresent(String.self, forKey: .currency) ?? "USD"
             description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
@@ -104,6 +107,7 @@ struct Expense: Codable, Identifiable, Sendable {
         try container.encode(id, forKey: .id)
         try container.encodeIfPresent(userID, forKey: .userID)
         try container.encodeIfPresent(teamID, forKey: .teamID)
+        try container.encodeIfPresent(squadID, forKey: .squadID)
         try container.encode(amount, forKey: .amount)
         try container.encodeIfPresent(currency, forKey: .currency)
         try container.encode(description, forKey: .description)

@@ -13,6 +13,8 @@ struct DashboardData: Codable, Sendable {
     let categoryBreakdown: [CategoryBreakdown]?
     let recentExpenses: [Expense]?
     let monthlyComparison: MonthlyComparison?
+    let safeToSpend: SafeToSpend?
+    let ecoImpact: EcoImpact?
     
     // Provide a default empty state for new users
     static var empty: DashboardData {
@@ -21,9 +23,30 @@ struct DashboardData: Codable, Sendable {
             monthlyExpenses: 0,
             categoryBreakdown: [],
             recentExpenses: [],
-            monthlyComparison: MonthlyComparison(currentMonth: 0, previousMonth: 0, changePercentage: 0)
+            monthlyComparison: MonthlyComparison(currentMonth: 0, previousMonth: 0, changePercentage: 0),
+            safeToSpend: nil,
+            ecoImpact: nil
         )
     }
+}
+
+struct SafeToSpend: Codable, Sendable {
+    let dailyAllowance: Double
+    let monthlyRemaining: Double
+    let daysRemaining: Int
+    let status: Status
+    
+    enum Status: String, Codable, Sendable {
+        case onTrack = "on_track"
+        case caution = "caution"
+        case overspent = "overspent"
+    }
+}
+
+struct EcoImpact: Codable, Sendable {
+    let carbonFootprintKg: Double
+    let treesToOffset: Double
+    let score: Int // 0-100 (100 is best)
 }
 
 struct CategoryBreakdown: Codable, Identifiable, Sendable {
