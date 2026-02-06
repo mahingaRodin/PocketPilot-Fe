@@ -52,7 +52,7 @@ struct SquadSettlementsView: View {
                 }
             }
         }
-        .navigationTitle(squad.name)
+        .navigationTitle(squad.name ?? "Squad Settlements")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -74,7 +74,7 @@ struct SquadSettlementsView: View {
         isLoading = true
         errorMessage = nil
         do {
-            settlements = try await squadService.fetchSettlements(squadID: squad.id.uuidString)
+            settlements = try await squadService.fetchSettlements(squadID: squad.id)
         } catch {
             errorMessage = error.localizedDescription
         }

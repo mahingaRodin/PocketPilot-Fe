@@ -25,6 +25,7 @@ enum APIEndpoint: Sendable {
     case getSquads
     case createSquad
     case joinSquad
+    case deleteSquad(String)
     case getSquadSettlements(String)
     
     // Expense endpoints
@@ -114,6 +115,8 @@ enum APIEndpoint: Sendable {
             return "/squads"
         case .joinSquad:
             return "/squads/join"
+        case .deleteSquad(let id):
+            return "/squads/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .getSquadSettlements(let id):
             return "/squads/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/settlements"
         case .getExpenses:
@@ -226,7 +229,7 @@ enum APIEndpoint: Sendable {
             return .post
         case .updateProfile, .updateExpense, .updateProfilePicture(_), .markAlertRead(_), .updateBudget(_), .updateNotificationPreferences, .markNotificationRead(_), .markAllNotificationsRead:
             return .put
-        case .deleteExpense, .deleteProfilePicture(_), .deleteBudget(_), .deleteNotification(_), .deleteAllNotifications, .chatClearHistory:
+        case .deleteExpense, .deleteProfilePicture(_), .deleteBudget(_), .deleteNotification(_), .deleteAllNotifications, .chatClearHistory, .deleteSquad:
             return .delete
         default:
             return .get

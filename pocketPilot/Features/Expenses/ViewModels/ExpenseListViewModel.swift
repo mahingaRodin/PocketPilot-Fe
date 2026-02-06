@@ -52,8 +52,8 @@ class ExpenseListViewModel {
                 print("DEBUG: [Expenses] Decoded using BackendExpenseResponse strategy")
                 expenses = response.expenses
             }
-            // Try 2: Wrap in MainActorAPIResponse<MainActorPaginatedResponse<Expense>>
-            else if let response = try? decoder.decode(MainActorAPIResponse<MainActorPaginatedResponse<Expense>>.self, from: data),
+            // Try 2: Wrap in MainActorAPIResponse<PaginatedAPIResponse<Expense>>
+            else if let response = try? decoder.decode(MainActorAPIResponse<PaginatedAPIResponse<Expense>>.self, from: data),
                response.success, let result = response.data {
                 print("DEBUG: [Expenses] Decoded using wrapped paginated strategy")
                 expenses = result.data

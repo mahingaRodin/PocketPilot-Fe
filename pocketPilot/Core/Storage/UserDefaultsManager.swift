@@ -16,21 +16,21 @@ class UserDefaultsManager {
     // MARK: - Currency
     
     func saveCurrency(_ currency: String) {
-        userDefaults.set(currency, forKey: Constants.Keys.selectedCurrency)
+        userDefaults.set(currency, forKey: Constants.App.Keys.selectedCurrency)
     }
     
     func getCurrency() -> String {
-        return userDefaults.string(forKey: Constants.Keys.selectedCurrency) ?? Constants.Keys.defaultCurrency
+        return userDefaults.string(forKey: Constants.App.Keys.selectedCurrency) ?? Constants.App.Keys.defaultCurrency
     }
     
     // MARK: - Onboarding
     
     func setHasOnboarded(_ hasOnboarded: Bool) {
-        userDefaults.set(hasOnboarded, forKey: Constants.Keys.hasOnboarded)
+        userDefaults.set(hasOnboarded, forKey: Constants.App.Keys.hasOnboarded)
     }
     
     func hasOnboarded() -> Bool {
-        return userDefaults.bool(forKey: Constants.Keys.hasOnboarded)
+        return userDefaults.bool(forKey: Constants.App.Keys.hasOnboarded)
     }
     
     // MARK: - Clear All

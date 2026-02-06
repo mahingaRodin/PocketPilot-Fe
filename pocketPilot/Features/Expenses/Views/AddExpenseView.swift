@@ -134,7 +134,7 @@ struct AddExpenseView: View {
                                     Picker("", selection: $selectedSquadID) {
                                         Text("None").tag(String?.none)
                                         ForEach(squadService.squads) { squad in
-                                            Text(squad.name).tag(String?.some(squad.id.uuidString))
+                                            Text(squad.name ?? "Unnamed Squad").tag(String?.some(squad.id))
                                         }
                                     }
                                     .pickerStyle(.menu)
@@ -332,22 +332,25 @@ struct AddExpenseView: View {
         isLoading = true
         errorMessage = nil
         
-            let parameters: [String: Any] = [
+            var parameters: [String: Any] = [
                 "amount": amountValue,
                 "currency": currency,
                 "description": description,
                 "category": selectedCategory.name.lowercased(),
                 "notes": notes,
                 "date": ISO8601DateFormatter().string(from: date),
-                "squadId": selectedSquadID as Any,
                 "items": items.map { item in
                     [
                         "name": item.name,
                         "price": item.price,
-                        "quantity": item.quantity // Add other fields if needed
+                        "quantity": item.quantity 
                     ]
                 }
             ]
+            
+            if let squadID = selectedSquadID {
+                parameters["squadId"] = squadID
+            }
             
             do {
                 let data: Data

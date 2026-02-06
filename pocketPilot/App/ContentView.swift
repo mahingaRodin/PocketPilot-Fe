@@ -15,53 +15,25 @@ struct ContentView: View {
         ZStack {
             if authManager.isAuthenticated {
                 MainTabView()
+                    .transition(.opacity)
             } else {
                 LoginView()
+                    .transition(.opacity)
             }
             
-            // Welcome Message Overlay
+            // Full Screen Welcome/Loading View
             if authManager.showWelcomeMessage, let message = authManager.welcomeMessage {
-                VStack {
-                    HStack(spacing: 12) {
-                        Image(systemName: "hand.wave.fill")
-                            .font(.title3)
-                            .foregroundStyle(.white)
-                            .symbolEffect(.bounce, value: authManager.showWelcomeMessage)
-                        
-                        Text(message)
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 14)
-                    .background(
-                        ZStack {
-                            Capsule()
-                                .fill(LinearGradient(
-                                    colors: [Color.blue, Color(red: 0.2, green: 0.3, blue: 0.9)],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ))
-                            
-                            Capsule()
-                                .stroke(.white.opacity(0.3), lineWidth: 1)
-                        }
-                    )
-                    .shadow(color: .blue.opacity(0.4), radius: 15, x: 0, y: 8)
-                    .padding(.top, 64) 
-                    .transition(.move(edge: .top).combined(with: .opacity).combined(with: .scale(scale: 0.9)))
-                    
-                    Spacer()
-                }
-                .zIndex(100) // Ensure it's above everything
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                            authManager.showWelcomeMessage = false
+                WelcomeView(message: message)
+                    .zIndex(1) // Ensure it stays on top
+                    .transition(.opacity)
+                    .onAppear {
+                        // Dismiss after 3 seconds
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                            withAnimation(.easeOut(duration: 0.5)) {
+                                authManager.showWelcomeMessage = false
+                            }
                         }
                     }
-                }
             }
         }
     }

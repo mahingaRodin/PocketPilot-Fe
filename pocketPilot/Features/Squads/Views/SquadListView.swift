@@ -17,6 +17,34 @@ struct SquadListView: View {
                             .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if let error = squadService.errorMessage, squadService.squads.isEmpty {
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 50))
+                            .foregroundColor(.orange)
+                        Text("Couldn't Load Squads")
+                            .font(.headline)
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                        
+                        Button {
+                            Task {
+                                await squadService.fetchSquads()
+                            }
+                        } label: {
+                            Text("Retry")
+                                .fontWeight(.bold)
+                                .padding(.horizontal, 32)
+                                .padding(.vertical, 12)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .clipShape(Capsule())
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if squadService.squads.isEmpty {
                     VStack(spacing: 24) {
                         Spacer()
@@ -77,6 +105,7 @@ struct SquadListView: View {
                                 SquadRow(squad: squad)
                             }
                         }
+                        .onDelete(perform: deleteSquad)
                     }
                     .listStyle(.insetGrouped)
                 }
@@ -115,6 +144,15 @@ struct SquadListView: View {
             }
         }
     }
+    
+    private func deleteSquad(at offsets: IndexSet) {
+        for index in offsets {
+            let squad = squadService.squads[index]
+            Task {
+                try? await squadService.deleteSquad(id: squad.id)
+            }
+        }
+    }
 }
 
 struct SquadRow: View {
@@ -127,14 +165,14 @@ struct SquadRow: View {
                     .fill(LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
                     .frame(width: 50, height: 50)
                 
-                Text(squad.name.prefix(1).uppercased())
+                Text((squad.name ?? "S").prefix(1).uppercased())
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
             }
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(squad.name)
+                Text(squad.name ?? "Unnamed Squad")
                     .font(.headline)
                 if let desc = squad.description {
                     Text(desc)

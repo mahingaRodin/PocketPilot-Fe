@@ -9,8 +9,3 @@ struct MainActorAPIResponse<T: Decodable>: Decodable {
     let error: APIErrorDetail?
 }
 
-@MainActor
-struct MainActorPaginatedResponse<T: Decodable>: Decodable {
-    let data: [T]
-    let pagination: Pagination
-}
