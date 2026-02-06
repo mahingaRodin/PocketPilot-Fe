@@ -27,6 +27,7 @@ enum APIEndpoint: Sendable {
     case joinSquad
     case deleteSquad(String)
     case getSquadSettlements(String)
+    case getSquadMembers(String)
     
     // Expense endpoints
     case getExpenses
@@ -119,6 +120,8 @@ enum APIEndpoint: Sendable {
             return "/squads/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
         case .getSquadSettlements(let id):
             return "/squads/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/settlements"
+        case .getSquadMembers(let id):
+            return "/squads/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/members"
         case .getExpenses:
             return "/expenses"
         case .getExpense(let id):

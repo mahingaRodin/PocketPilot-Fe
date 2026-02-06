@@ -79,6 +79,17 @@ struct ProfileView: View {
                                     Text(user.email ?? "")
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
+                                    
+                                    if let income = user.monthlyIncome {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "dollarsign.circle.fill")
+                                                .foregroundColor(.green)
+                                            Text("$\(income, specifier: "%.0f") / month")
+                                                .fontWeight(.semibold)
+                                        }
+                                        .font(.caption)
+                                        .padding(.top, 4)
+                                    }
                                 }
                 if showPhotoOptions {
                     HStack(spacing: 24) {

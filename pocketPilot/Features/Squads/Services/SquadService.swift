@@ -151,6 +151,20 @@ class SquadService {
         return nil
     }
     
+    func fetchMembers(squadID: String) async throws -> [SquadMemberResponse] {
+        let data = try await apiClient.requestData(.getSquadMembers(squadID))
+        let decoder = JSONDecoder.api
+        
+        // Try 1: Direct array
+        if let members = try? decoder.decode([SquadMemberResponse].self, from: data) {
+            return members
+        }
+        
+        // Try 2: Wrapped
+        let response = try decoder.decode(MainActorAPIResponse<[SquadMemberResponse]>.self, from: data)
+        return response.data ?? []
+    }
+    
     func deleteSquad(id: String) async throws {
         isLoading = true
         errorMessage = nil

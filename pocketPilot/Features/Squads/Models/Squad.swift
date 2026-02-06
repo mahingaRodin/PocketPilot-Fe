@@ -73,3 +73,39 @@ struct CreateSquadRequest: Encodable {
 struct JoinSquadRequest: Encodable {
     let inviteCode: String
 }
+
+struct SquadMemberResponse: Codable, Identifiable, Sendable {
+    let id: String
+    let userID: String
+    let firstName: String
+    let lastName: String
+    let role: SquadRole
+    
+    enum CodingKeys: String, CodingKey {
+        case id, userID, firstName, lastName, role
+        case user_id, first_name, last_name
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        userID = try container.decodeIfPresent(String.self, forKey: .userID) ?? container.decode(String.self, forKey: .user_id)
+        firstName = try container.decodeIfPresent(String.self, forKey: .firstName) ?? container.decode(String.self, forKey: .first_name)
+        lastName = try container.decodeIfPresent(String.self, forKey: .lastName) ?? container.decode(String.self, forKey: .last_name)
+        role = try container.decode(SquadRole.self, forKey: .role)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(userID, forKey: .userID)
+        try container.encode(firstName, forKey: .firstName)
+        try container.encode(lastName, forKey: .lastName)
+        try container.encode(role, forKey: .role)
+    }
+}
+
+enum SquadRole: String, Codable, Sendable {
+    case admin = "admin"
+    case member = "member"
+}
