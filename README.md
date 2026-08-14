@@ -1,330 +1,123 @@
-﻿# PocketPilot - Expense Tracking iOS App
+﻿# PocketPilot
 
-A modern SwiftUI-based iOS application for tracking and managing expenses with real-time updates, secure authentication, and comprehensive expense management features.
+SwiftUI iOS app for tracking expenses — auth, dashboard, receipts, squads, reports, and real-time updates.
 
-## ðŸ“± Project Structure
+<p align="center">
+  <img src="branding/pocketpilot-icon-presentation.png" alt="PocketPilot app icon" width="180" />
+</p>
 
-\\\
-PocketPilot-Fe/
-â”œâ”€â”€ pocketPilot/
-â”‚   â”œâ”€â”€ App/                    # App entry point
-â”‚   â”œâ”€â”€ Core/                   # Core functionality
-â”‚   â”‚   â”œâ”€â”€ Authentication/     # Auth management
-â”‚   â”‚   â”œâ”€â”€ Network/           # API client & networking
-â”‚   â”‚   â”œâ”€â”€ Storage/           # Keychain, UserDefaults, CoreData
-â”‚   â”‚   â”œâ”€â”€ Utilities/         # Helpers & extensions
-â”‚   â”‚   â””â”€â”€ WebSocket/         # Real-time updates
-â”‚   â””â”€â”€ Features/              # Feature modules
-â”‚       â”œâ”€â”€ Authentication/    # Login, SignUp views
-â”‚       â”œâ”€â”€ Dashboard/         # Dashboard & stats
-â”‚       â”œâ”€â”€ Expenses/          # Expense management
-â”‚       â”œâ”€â”€ Profile/           # User profile
-â”‚       â””â”€â”€ Components/        # Reusable UI components
-â””â”€â”€ pocketPilot.xcodeproj/     # Xcode project
-\\\
+<p align="center">
+  <img src="branding/pocketpilot-wordmark-presentation.png" alt="PocketPilot wordmark" width="520" />
+</p>
 
-## ðŸš€ Prerequisites
+## Requirements
 
-### For iOS Development on Windows:
+- macOS with **Xcode 15+**
+- **iOS 17.0+**
+- **Swift 5.9+**
+- CocoaPods (`sudo gem install cocoapods`)
 
-**âš ï¸ Important:** iOS development requires macOS and Xcode. You cannot build iOS apps directly on Windows.
+> iOS apps cannot be built on Windows. Use a Mac, a cloud Mac (MacStadium, MacinCloud, AWS EC2 Mac), or a remote Mac session.
 
-**Option 1: Using macOS (Recommended)**
-- You need a Mac with Xcode installed to build and run iOS apps
-- If you don't have a Mac, consider:
-  - Using a Mac in the cloud (MacStadium, AWS EC2 Mac instances)
-  - Using a Mac VM (requires macOS license)
-  - Using a Hackintosh (not recommended, legal issues)
+## Quick start
 
-**Option 2: Using Remote Mac**
-- Connect to a remote Mac via SSH or screen sharing
-- Use Xcode remotely
-
-**Option 3: Use Cloud Mac Services**
-- **MacStadium**: https://www.macstadium.com/
-- **AWS EC2 Mac instances**: https://aws.amazon.com/ec2/instance-types/mac/
-- **MacinCloud**: https://www.macincloud.com/
-
-## ðŸ“¦ Setup Instructions
-
-### 1. Install Dependencies
-
-The project uses CocoaPods for dependency management. Install CocoaPods first:
-
-\\\ash
-# On macOS (or Mac VM)
-sudo gem install cocoapods
-\\\
-
-### 2. Install Pods
-
-\\\ash
+```bash
 cd PocketPilot-Fe
 pod install
-\\\
+open pocketPilot.xcworkspace   # open the workspace, not .xcodeproj
+```
 
-**Note:** If you see a Podfile in a directory, you may need to create a Podfile at the root level. Here's the content:
+1. Set your API URLs in `pocketPilot/Core/Utilities/Constants.swift`
+2. Select a simulator or device in Xcode
+3. Run with **⌘R**
 
-\\\uby
-platform :ios, '17.0'
+### API config
 
-target 'pocketPilot' do
-  use_frameworks!
-  pod 'Alamofire', '~> 5.8'
-  pod 'KeychainAccess', '~> 4.2'
-end
-\\\
-
-### 3. Open the Project
-
-\\\ash
-# Open the workspace (not the project file)
-open pocketPilot.xcworkspace
-\\\
-
-**Important:** Always open the .xcworkspace file, not the .xcodeproj file when using CocoaPods.
-
-### 4. Configure API Endpoint
-
-Update the API base URL in \pocketPilot/Core/Utilities/Constants.swift\:
-
-\\\swift
+```swift
 struct Constants {
     struct API {
-        static let baseURL = "https://your-api-url.com"  // Update this
+        static let baseURL = "https://your-api-url.com/api/v1"
         static let timeout: TimeInterval = 30.0
         static let webSocketURL = "wss://your-api-url.com/ws"
     }
 }
-\\\
+```
 
-### 5. Build and Run
+## Features
 
-1. Select a simulator or connected device in Xcode
-2. Press \Cmd + R\ to build and run
-3. Or use the Play button in Xcode
+| Area | What’s included |
+|------|-----------------|
+| **Auth** | Login, sign up, forgot password, token refresh, Keychain storage |
+| **Dashboard** | Totals, monthly stats, category breakdown, recent expenses |
+| **Expenses** | CRUD, categories, search & filters, detail views |
+| **Budget** | Budget tracking module |
+| **Receipts** | Camera / library capture, review & preview flow |
+| **Squads** | Shared groups, settlements, join/create flows |
+| **Reports** | History & export |
+| **Chat** | In-app chat with floating entry point |
+| **Gamification** | Achievements |
+| **Notifications** | List + settings |
+| **Profile** | Edit profile, settings, currency |
 
-## ðŸ“š Dependencies
+## Project structure
 
-The project uses the following dependencies:
+```
+PocketPilot-Fe/
+├── branding/                 # Logo extracts & presentation PNGs
+├── pocketPilot/
+│   ├── App/                  # Entry, welcome, root navigation
+│   ├── Assets.xcassets/      # AppLogo, AppIcon
+│   ├── Core/                 # Auth, Network, Storage, WebSocket, Utilities
+│   └── Features/             # Feature modules (MVVM)
+└── pocketPilot.xcodeproj/
+```
 
-- **Alamofire** (~> 5.8): HTTP networking library
-- **KeychainAccess** (~> 4.2): Secure keychain storage
+## Architecture
 
-## âœ¨ Project Features
+- **MVVM** with Swift `@Observable` (iOS 17+)
+- **Async/await** networking via Alamofire
+- Feature-first folders; shared UI under `Features/Components`
 
-### âœ… Completed Features
+## Dependencies
 
-- âœ… **Authentication System**
-  - Login with email/password
-  - User registration (Sign Up)
-  - Forgot password flow
-  - Secure token management with automatic refresh
-  - Keychain-based secure storage
+- [Alamofire](https://github.com/Alamofire/Alamofire) (~> 5.8) — HTTP
+- [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) (~> 4.2) — secure storage
 
-- âœ… **Dashboard**
-  - Total expenses overview
-  - Monthly expense tracking
-  - Category breakdown with visual indicators
-  - Recent expenses list
-  - Monthly comparison statistics
+## Branding
 
-- âœ… **Expense Management**
-  - Create, read, update, delete expenses
-  - Category-based organization
-  - Date range filtering
-  - Search functionality
-  - Expense detail view
-  - Receipt image support (structure ready)
+Source assets live in `Assets.xcassets` (`AppLogo` / `AppIcon`, 1024×1024). Presentation copies:
 
-- âœ… **Profile Management**
-  - User profile view
-  - Edit profile information
-  - Change password
-  - Settings with currency selection
-  - Logout functionality
+| File | Use |
+|------|-----|
+| `branding/pocketpilot-logo-source.png` | Exact extract from the app |
+| `branding/pocketpilot-icon-presentation.png` | App icon for decks / README |
+| `branding/pocketpilot-wordmark-presentation.png` | Logo + wordmark lockup |
 
-- âœ… **Network Layer**
-  - RESTful API client with Alamofire
-  - Automatic token refresh on 401 errors
-  - Request/response interceptors
-  - Error handling and mapping
-  - Network monitoring
+Mark: brushed-metal **P** with a paper-airplane wing on a blue → magenta gradient.
 
-- âœ… **Real-time Updates**
-  - WebSocket integration
-  - Real-time expense updates
-  - Automatic UI refresh on changes
+## API overview
 
-- âœ… **UI Components**
-  - Reusable button components (Primary, Secondary)
-  - Custom form fields
-  - Loading and error views
-  - Stat cards
-  - Expense cards
-  - Modern SwiftUI design
+Expected REST shape:
 
-## ðŸ”Œ API Integration
+```json
+{ "success": true, "data": { }, "message": null, "error": null }
+```
 
-The app expects a REST API with the following endpoints:
+| Group | Endpoints |
+|-------|-----------|
+| Auth | `POST /auth/login`, `/signup`, `/logout`, `/refresh`, `/forgot-password`, `/reset-password`, `/change-password`; `GET /auth/me`; `PUT /auth/profile` |
+| Expenses | `GET/POST /expenses`, `GET/PUT/DELETE /expenses/:id` |
+| Dashboard | `GET /dashboard` |
+| Realtime | `WS /ws` |
 
-### Authentication
-- \POST /auth/login\ - User login
-- \POST /auth/signup\ - User registration
-- \POST /auth/logout\ - User logout
-- \POST /auth/refresh\ - Refresh access token
-- \GET /auth/me\ - Get current user
-- \PUT /auth/profile\ - Update profile
-- \POST /auth/change-password\ - Change password
-- \POST /auth/forgot-password\ - Request password reset
-- \POST /auth/reset-password\ - Reset password with token
+## Troubleshooting
 
-### Expenses
-- \GET /expenses\ - List expenses (returns PaginatedResponse)
-- \GET /expenses/:id\ - Get expense details
-- \POST /expenses\ - Create expense
-- \PUT /expenses/:id\ - Update expense
-- \DELETE /expenses/:id\ - Delete expense
+| Issue | Fix |
+|-------|-----|
+| Build errors | Clean (**⇧⌘K**), re-run `pod install`, open `.xcworkspace` |
+| Network | Check `Constants.swift` base URL and backend reachability |
+| CocoaPods | `pod deintegrate && pod install` |
 
-### Dashboard
-- \GET /dashboard\ - Get dashboard statistics
+## License
 
-### WebSocket
-- \WS /ws\ - WebSocket connection for real-time updates
-
-### API Response Format
-
-The API should return responses in this format:
-
-\\\json
-{
-  "success": true,
-  "data": { ... },
-  "message": "Optional message",
-  "error": null
-}
-\\\
-
-For paginated responses:
-
-\\\json
-{
-  "data": [...],
-  "pagination": {
-    "current_page": 1,
-    "total_pages": 10,
-    "total_items": 100,
-    "items_per_page": 10
-  }
-}
-\\\
-
-## ðŸ—ï¸ Architecture
-
-### Design Patterns
-- **MVVM Pattern**: ViewModels handle business logic
-- **Observable Pattern**: Using Swift's \@Observable\ macro (iOS 17+)
-- **Dependency Injection**: Singleton pattern for managers
-- **Async/Await**: Modern Swift concurrency
-
-### Code Organization
-- **Features**: Organized by feature modules
-- **Core**: Shared functionality (Network, Storage, etc.)
-- **Components**: Reusable UI components
-- **Separation of Concerns**: Clear boundaries between layers
-
-## ðŸ› ï¸ Development Notes
-
-### Code Style
-- Follow Swift naming conventions
-- Use SwiftUI best practices
-- Maintain separation of concerns
-- Use \@Observable\ for state management
-- Prefer async/await over completion handlers
-
-### Key Files
-- \ContentView.swift\: Main app navigation and authentication flow
-- \APIClient.swift\: Network layer implementation
-- \AuthManager.swift\: Authentication state management
-- \KeychainManager.swift\: Secure storage
-- \Constants.swift\: App configuration
-
-## ðŸ› Troubleshooting
-
-### Build Errors
-1. Clean build folder: \Cmd + Shift + K\
-2. Delete derived data: \Cmd + Option + Shift + K\
-3. Run \pod install\ again
-4. Restart Xcode
-5. Check that you opened \.xcworkspace\, not \.xcodeproj\
-
-### Network Issues
-- Check API base URL in \Constants.swift\
-- Verify network permissions in \Info.plist\
-- Check SSL certificate if using HTTPS
-- Ensure backend API is running and accessible
-
-### Keychain Issues
-- Ensure proper keychain access permissions
-- Check service identifier matches
-- Verify KeychainAccess pod is installed
-
-### CocoaPods Issues
-- Run \pod deintegrate\ then \pod install\
-- Clear CocoaPods cache: \pod cache clean --all\
-- Update CocoaPods: \sudo gem update cocoapods\
-
-## ðŸ“ Running on Windows
-
-Since iOS development requires macOS and Xcode, here are your options:
-
-### Option A: Use a Mac VM (VirtualBox/VMware)
-1. Obtain macOS (requires Apple Developer account)
-2. Install macOS in VM
-3. Install Xcode from App Store
-4. Follow setup instructions above
-
-### Option B: Use Cloud Mac Services
-- **MacStadium**: https://www.macstadium.com/
-- **AWS EC2 Mac instances**: https://aws.amazon.com/ec2/instance-types/mac/
-- **MacinCloud**: https://www.macincloud.com/
-
-### Option C: Develop on a Physical Mac
-- Use a MacBook, iMac, or Mac Mini
-- This is the standard and recommended approach
-
-## ðŸ”’ Security Features
-
-- Secure token storage in Keychain
-- Automatic token refresh
-- HTTPS support
-- Secure password handling
-- Keychain-based user data storage
-
-## ðŸ“± Requirements
-
-- iOS 17.0+
-- Xcode 15.0+
-- Swift 5.9+
-- CocoaPods
-
-## ðŸ“„ License
-
-[Your License Here]
-
-## ðŸ¤ Support
-
-For issues and questions, please open an issue on GitHub.
-
-## ðŸŽ¯ Next Steps
-
-1. Update \Constants.swift\ with your API endpoint
-2. Install dependencies with \pod install\
-3. Open \pocketPilot.xcworkspace\ in Xcode
-4. Build and run on simulator or device
-5. Test authentication flow
-6. Configure backend API endpoints
-
----
-
-**Note:** This is a complete frontend implementation. Make sure your backend API matches the expected endpoints and response formats described above.
+Add your license here.
